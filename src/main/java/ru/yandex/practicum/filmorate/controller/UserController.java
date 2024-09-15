@@ -30,6 +30,7 @@ public class UserController {
             }
             user.setId(getNextId());
             users.put(user.getId(), user);
+            log.info("Создан пользователь с id: {}", user.getId());
             return user;
         }
         throw new ValidationException("Такой пользователь не может быть создан");
@@ -43,6 +44,7 @@ public class UserController {
                     newUser.setName(newUser.getLogin());
                 }
                 users.put(newUser.getId(), newUser);
+                log.info("Обновлен пользователь с id: {}", newUser.getId());
                 return newUser;
             }
         }

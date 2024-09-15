@@ -6,9 +6,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +31,7 @@ public class FilmController {
             film.setId(getNextId());
             films.put(film.getId(), film);
             System.out.println(film.getDuration());
+            log.info("Создан фильм с id: {}", film.getId());
             return film;
         }
         throw new ValidationException("Такой фильм не может быть создан");
@@ -43,6 +42,7 @@ public class FilmController {
         if (films.containsKey(newFilm.getId())) {
             if (validate(newFilm)) {
                 films.put(newFilm.getId(), newFilm);
+                log.info("Обновлен фильм с id: {}", newFilm.getId());
                 return newFilm;
             }
         }
