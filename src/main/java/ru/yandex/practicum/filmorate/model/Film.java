@@ -20,7 +20,7 @@ public class Film {
     @Size(max = MAXIMUM_DESCRIPTION_LENGTH, message = "Длинна описания не должна превышать " +
             MAXIMUM_DESCRIPTION_LENGTH + " символов")
     private String description;
-    @MinDate
+    @MinDate(message = "Дата релиза не может быть раньше: {value}")
     private LocalDate releaseDate;
     @Positive(message = "Продолжительность фильма должна быть положительной")
     private Integer duration;
