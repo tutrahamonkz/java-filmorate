@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Setter
 public class Film {
 
-    private final static int MAXIMUM_DESCRIPTION_LENGTH = 200;
+    private static final int MAXIMUM_DESCRIPTION_LENGTH = 200;
 
     private Long id;
     @NotNull(message = "Название фильма должно быть указано")
