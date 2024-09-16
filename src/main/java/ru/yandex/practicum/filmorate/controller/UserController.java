@@ -10,9 +10,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
-@Slf4j
 public class UserController {
     private final Map<Long, User> users = new HashMap<>();
 
