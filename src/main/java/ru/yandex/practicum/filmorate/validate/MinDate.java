@@ -8,13 +8,13 @@ import java.lang.annotation.*;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = MinDateValidator.class)
+@Constraint(validatedBy = {MinDateValidator.class})
 public @interface MinDate {
-    String message() default "{value.negative}";
+    String message() default "{MinDate.message}";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
 
-    String value() default "1895-12-28";
+    String value() default "0001-01-01";
 }

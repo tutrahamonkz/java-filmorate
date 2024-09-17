@@ -37,7 +37,7 @@ public class FilmController {
             log.info("Обновлен фильм с id: {}", newFilm.getId());
             return newFilm;
         }
-        throw new NotFoundException("Фильм с id = " + newFilm.getId() + " не найден");
+        throw new NotFoundException("Фильм с id: " + newFilm.getId() + " не найден");
     }
 
     private long getNextId() {

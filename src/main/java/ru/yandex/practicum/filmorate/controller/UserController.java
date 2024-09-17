@@ -42,7 +42,7 @@ public class UserController {
                 log.info("Обновлен пользователь с id: {}", newUser.getId());
                 return newUser;
         }
-        throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
+        throw new NotFoundException("Пользователь с id: " + newUser.getId() + " не найден");
     }
 
     private long getNextId() {
