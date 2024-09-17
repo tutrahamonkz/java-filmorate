@@ -79,11 +79,7 @@ class FilmControllerTest {
 
     @Test
     void shouldReturnInvalidRequestWhenFilmDescriptionLengthMoreMaximum() throws Exception {
-        String description = "\"Test\" — это драматическая картина, которая погружает зрителя в мир танца и " +
-                "самоопределения. Фильм рассказывает о молодом хореографе, который борется с внутренними " +
-                "конфликтами и зовом творчества, одновременно сталкиваясь с предрассудками и сложностями в любви. " +
-                "Сюжет исследует не только художественное выражение, но и социальные проблемы, позволяя зрителям " +
-                "глубже понять хрупкость человеческих отношений и стойкость индивидуальности.";
+        String description = "test string".repeat(20);
         Film film = Film.builder()
                 .name("test")
                 .description(description)
