@@ -16,19 +16,21 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@SpringBootTest()
+@SpringBootTest() // Аннотация для указания, что это тестовый класс, который будет загружать контекст Spring.
+// Автоматическая конфигурация MockMvc для тестирования контроллеров без необходимости запуска сервера.
 @AutoConfigureMockMvc
+// Указывает порядок выполнения тестов на основе аннотаций @Order.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class FilmControllerTest {
 
-    @Autowired
+    @Autowired // Внедрение зависимости MockMvc для выполнения HTTP-запросов в тестах.
     private MockMvc mockMvc;
-    private static ObjectMapper mapper;
+    private static ObjectMapper mapper; // Объект для сериализации и десериализации JSON.
 
     @BeforeAll
     static void setUp() {
-        mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
+        mapper = new ObjectMapper(); // Инициализация ObjectMapper для работы с JSON.
+        mapper.registerModule(new JavaTimeModule()); // Регистрация модуля для поддержки Java 8 времени
     }
 
     @Test
@@ -79,7 +81,7 @@ class FilmControllerTest {
 
     @Test
     void shouldReturnInvalidRequestWhenFilmDescriptionLengthMoreMaximum() throws Exception {
-        String description = "test string".repeat(20);
+        String description = "1".repeat(Film.MAXIMUM_DESCRIPTION_LENGTH) + "1"; // больше на 1 символ чем максимум
         Film film = Film.builder()
                 .name("test")
                 .description(description)

@@ -10,41 +10,39 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-@Slf4j
-@RestController
-@RequestMapping("/users")
+@Slf4j // Аннотация для автоматической генерации логгера
+@RestController // Указывает, что этот класс является REST-контроллером
+@RequestMapping("/users") // Устанавливает базовый путь для всех методов контроллера
 public class UserController {
+    // Хранение пользователей в виде пары "идентификатор - пользователь"
     private final Map<Long, User> users = new HashMap<>();
 
-    @GetMapping
+    @GetMapping // Обрабатывает GET-запросы по пути "/users"
     public Collection<User> findAll() {
-        return users.values();
+        return users.values(); // Возвращает всех пользователей
     }
 
-    @PostMapping
+    @PostMapping // Обрабатывает POST-запросы по пути "/users"
     public User create(@Valid @RequestBody User user) {
-            if (user.getName() == null) {
-                user.setName(user.getLogin());
-            }
-            user.setId(getNextId());
-            users.put(user.getId(), user);
-            log.info("Создан пользователь с id: {}", user.getId());
-            return user;
+            user.setId(getNextId()); // Генерируем следующий идентификатор
+            users.put(user.getId(), user); // Сохраняем пользователя в коллекцию
+            log.info("Создан пользователь с id: {}", user.getId()); // Логируем информацию о создании пользователя
+            return user; // Возвращаем созданного пользователя
     }
 
-    @PutMapping
+    @PutMapping // Обрабатывает PUT-запросы по пути "/users"
     public User update(@Valid @RequestBody User newUser) {
+        // Проверяем, существует ли пользователь с указанным идентификатором
         if (users.containsKey(newUser.getId())) {
-                if (newUser.getName() == null) {
-                    newUser.setName(newUser.getLogin());
-                }
-                users.put(newUser.getId(), newUser);
-                log.info("Обновлен пользователь с id: {}", newUser.getId());
-                return newUser;
+                users.put(newUser.getId(), newUser); // Обновляем информацию о пользователе
+                log.info("Обновлен пользователь с id: {}", newUser.getId()); // Логируем информацию об обновлении
+                return newUser; // Возвращаем обновленного пользователя
         }
+        // Если пользователь не найден, выбрасываем исключение NotFoundException
         throw new NotFoundException("Пользователь с id: " + newUser.getId() + " не найден");
     }
 
+    // Метод для генерации следующего идентификатора
     private long getNextId() {
         long currentMaxId = users.keySet()
                 .stream()

@@ -19,14 +19,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class UserControllerTest {
-    @Autowired
+    @Autowired // Внедрение зависимости MockMvc для выполнения HTTP-запросов в тестах.
     private MockMvc mockMvc;
-    private static ObjectMapper mapper;
+    private static ObjectMapper mapper; // Объект для сериализации и десериализации JSON.
 
     @BeforeAll
     static void setUp() {
-        mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
+        mapper = new ObjectMapper(); // Инициализация ObjectMapper для работы с JSON.
+        mapper.registerModule(new JavaTimeModule()); // Регистрация модуля для поддержки Java 8 времени
     }
 
     @Test
