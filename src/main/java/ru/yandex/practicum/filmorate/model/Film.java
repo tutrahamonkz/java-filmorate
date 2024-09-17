@@ -1,17 +1,18 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Builder;
+import lombok.Data;
 import ru.yandex.practicum.filmorate.validate.MinDate;
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
+@Data
+@Builder
 public class Film {
 
     private static final int MAXIMUM_DESCRIPTION_LENGTH = 200;
+    private static final String MIN_RELEASE_DATE = "1895-12-28";
 
     private Long id;
     @NotNull(message = "Название фильма должно быть указано")
@@ -20,8 +21,8 @@ public class Film {
     @Size(max = MAXIMUM_DESCRIPTION_LENGTH, message = "Длинна описания не должна превышать " +
             MAXIMUM_DESCRIPTION_LENGTH + " символов")
     private String description;
-    @MinDate(message = "Дата релиза не может быть раньше: {value}")
+    @MinDate(message = "Дата релиза не может быть раньше: {value}", value = MIN_RELEASE_DATE)
     private LocalDate releaseDate;
-    @Positive(message = "Продолжительность фильма должна быть положительной")
+    @PositiveOrZero(message = "Продолжительность фильма должна быть положительной")
     private Integer duration;
 }
