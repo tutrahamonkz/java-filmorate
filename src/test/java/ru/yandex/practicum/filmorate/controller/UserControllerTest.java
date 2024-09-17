@@ -15,8 +15,10 @@ import java.time.LocalDate;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest()
+@SpringBootTest() // Аннотация для указания, что это тестовый класс, который будет загружать контекст Spring.
+// Автоматическая конфигурация MockMvc для тестирования контроллеров без необходимости запуска сервера.
 @AutoConfigureMockMvc
+// Указывает порядок выполнения тестов на основе аннотаций @Order.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class UserControllerTest {
     @Autowired // Внедрение зависимости MockMvc для выполнения HTTP-запросов в тестах.
