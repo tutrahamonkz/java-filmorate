@@ -9,7 +9,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.film.FilmService;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -19,26 +22,30 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest() // Аннотация для указания, что это тестовый класс, который будет загружать контекст Spring.
 // Автоматическая конфигурация MockMvc для тестирования контроллеров без необходимости запуска сервера.
 @AutoConfigureMockMvc
-// Указывает порядок выполнения тестов на основе аннотаций @Order.
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class FilmControllerTest {
 
     @Autowired // Внедрение зависимости MockMvc для выполнения HTTP-запросов в тестах.
     private MockMvc mockMvc;
+
     private static ObjectMapper mapper; // Объект для сериализации и десериализации JSON.
+
+    @Autowired // Внедрение сервиса фильмов для использования в тестах.
+    private FilmService filmService;
 
     @BeforeAll
     static void setUp() {
         mapper = new ObjectMapper(); // Инициализация ObjectMapper для работы с JSON.
         mapper.registerModule(new JavaTimeModule()); // Регистрация модуля для поддержки Java 8 времени
+        // Установка формата даты для сериализации/десериализации.
+        mapper.setDateFormat(new SimpleDateFormat("yyyy-M-dd"));
     }
 
     @Test
-    @Order(1)
     void shouldReturnEmptyList() throws Exception {
+        String films = mapper.writeValueAsString(filmService.getFilms());
         this.mockMvc.perform(get("/films"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("[]"));
+                .andExpect(content().string(films));
     }
 
     @Test
@@ -184,5 +191,87 @@ class FilmControllerTest {
                 .andExpect(jsonPath("$.description").value(film.getDescription()))
                 .andExpect(jsonPath("$.releaseDate").value(film.getReleaseDate().toString()))
                 .andExpect(jsonPath("$.duration").value(film.getDuration().toString()));
+    }
+
+    @Test
+    void shouldReturnCorrectRequestWhenAddLike() throws Exception {
+        createUser();
+        createFilm();
+        this.mockMvc.perform(put("/films/1/like/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.likes").value(1));
+    }
+
+    @Test
+    void shouldReturnInvalidRequestWhenAddLikeWrongFilmId() throws Exception {
+        createUser();
+        createFilm();
+        this.mockMvc.perform(put("/films/999/like/1"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturnInvalidRequestWhenAddLikeWrongUserId() throws Exception {
+        createUser();
+        createFilm();
+        this.mockMvc.perform(put("/films/1/like/999"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturnCurrentRequestWhenDeleteLike() throws Exception {
+        createUser();
+        createFilm();
+        this.mockMvc.perform(put("/films/1/like/1"))
+                .andExpect(status().isOk());
+        this.mockMvc.perform(delete("/films/1/like/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.likes").isEmpty());
+    }
+
+    @Test
+    void shouldReturnInvalidRequestWhenDeleteLikeWrongFilmId() throws Exception {
+        createUser();
+        createFilm();
+        this.mockMvc.perform(put("/films/1/like/1"))
+                .andExpect(status().isOk());
+        this.mockMvc.perform(delete("/films/999/like/1"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturnInvalidRequestWhenDeleteLikeWrongUserId() throws Exception {
+        createUser();
+        createFilm();
+        this.mockMvc.perform(put("/films/1/like/1"))
+                .andExpect(status().isOk());
+        this.mockMvc.perform(delete("/films/1/like/999"))
+                .andExpect(status().isNotFound());
+    }
+
+    void createUser() throws Exception {
+        User user = User.builder()
+                .login("test")
+                .email("test@test.com")
+                .build();
+        this.mockMvc.perform(post("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(user)))
+                .andExpect(status().isOk());
+    }
+
+    void createFilm() throws Exception {
+        Film film = Film.builder()
+                .name("test")
+                .description("Test description")
+                .releaseDate(LocalDate.parse("2000-01-01"))
+                .duration(100)
+                .build();
+        this.mockMvc.perform(post("/films")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(film)))
+                .andExpect(status().isOk());
     }
 }
