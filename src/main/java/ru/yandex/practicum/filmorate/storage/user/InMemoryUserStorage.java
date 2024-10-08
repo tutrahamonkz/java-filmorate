@@ -17,12 +17,12 @@ public class InMemoryUserStorage implements UserStorage {
     // Хранение пользователей в виде пары "идентификатор - пользователь"
     private final Map<Long, User> users = new HashMap<>();
 
-    @Override
+    @Override // Метод для получения всех пользователей из хранилища
     public Collection<User> getUsers() {
-        return users.values();
+        return users.values(); // Возвращает коллекцию всех пользователей
     }
 
-    @Override
+    @Override // Метод для создания нового пользователя
     public User userCreate(User user) {
         user.setId(getNextId()); // Генерируем следующий идентификатор
         users.put(user.getId(), user); // Сохраняем пользователя в коллекцию
@@ -30,9 +30,9 @@ public class InMemoryUserStorage implements UserStorage {
         return user; // Возвращаем созданного пользователя
     }
 
-    @Override
+    @Override // Метод для обновления информации о существующем пользователе
     public User userUpdate(User user) {
-        checkContainsUserId(user.getId());
+        checkContainsUserId(user.getId()); // Проверяем, существует ли пользователь с данным идентификатором
         users.put(user.getId(), user); // Обновляем информацию о пользователе
         log.info("Обновлен пользователь с id: {}", user.getId()); // Логируем информацию об обновлении
         return user; // Возвращаем обновленного пользователя
@@ -115,6 +115,7 @@ public class InMemoryUserStorage implements UserStorage {
         return users.get(userId);
     }
 
+    // Приватный метод для генерации следующего идентификатора пользователя
     private long getNextId() {
         long currentMaxId = users.keySet()
                 .stream()
