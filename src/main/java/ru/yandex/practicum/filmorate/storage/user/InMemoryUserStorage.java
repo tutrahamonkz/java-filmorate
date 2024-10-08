@@ -38,45 +38,63 @@ public class InMemoryUserStorage implements UserStorage {
         return user; // Возвращаем обновленного пользователя
     }
 
-    @Override
+    @Override  // Метод для получения пользователя по его идентификатору
     public User getUserById(Long id) {
-        return users.get(id);
+        return checkContainsUserId(id); // Возвращаем пользователя по его идентификатору
     }
 
-    @Override
+    @Override // Метод для добавления пользователя в друзья
     public User friending(Long userId, Long friendId) {
-        checkContainsUserId(userId);
-        checkContainsUserId(friendId);
-        users.get(userId).getFriends().add(friendId);
-        users.get(friendId).getFriends().add(userId);
+        // Проверяем существование обоих пользователей по их идентификаторам
+        User user = checkContainsUserId(userId);
+        User friend = checkContainsUserId(friendId);
+
+        // Добавляем friendId в список друзей пользователя userId и наоборот
+        user.getFriends().add(friendId);
+        friend.getFriends().add(userId);
+
+        // Логируем действие добавления в друзья
         log.info("Пользователь с id: {} добавил в друзья пользователя с id: {}", userId, friendId);
-        return users.get(userId);
+        return users.get(userId); // Возвращаем обновленного пользователя userId
 
     }
 
-    @Override
+    @Override // Метод для удаления пользователя из друзей
     public User unfriending(Long userId, Long friendId) {
-        checkContainsUserId(userId);
-        checkContainsUserId(friendId);
-        users.get(userId).getFriends().remove(friendId);
-        users.get(friendId).getFriends().remove(userId);
+        // Проверяем существование обоих пользователей по их идентификаторам
+        User user = checkContainsUserId(userId);
+        User friend = checkContainsUserId(friendId);
+
+        // Удаляем friendId из списка друзей пользователя userId и наоборот
+        user.getFriends().remove(friendId);
+        friend.getFriends().remove(userId);
+
+        // Логируем действие удаления из друзей
         log.info("Пользователь с id: {} удалил из друзей пользователя с id: {}", userId, friendId);
-        return users.get(friendId);
+        return users.get(friendId); // Возвращаем обновленного пользователя friendId
     }
 
-    @Override
+    @Override  // Метод для получения списка друзей указанного пользователя
     public Collection<User> getUserFriends(Long userId) {
-        checkContainsUserId(userId);
+        User user = checkContainsUserId(userId); // Проверяем существование пользователя по его идентификатору
+
+        // Логируем запрос на получение списка друзей пользователя
         log.info("Запрошен список друзей пользователя с id: {}", userId);
-        return users.get(userId).getFriends().stream()
+
+        // Возвращаем коллекцию друзей пользователя userId
+        return user.getFriends().stream()
                 .map(users::get)
                 .collect(Collectors.toSet());
     }
 
-    @Override
+    @Override // Метод для получения списка взаимных друзей между двумя пользователями
     public Collection<User> listOfMutualFriends(Long userId, Long friendId) {
         checkContainsUserId(userId);
         checkContainsUserId(friendId);
+        // Проверяем существование обоих пользователей по их идентификаторам
+        User user = checkContainsUserId(userId);
+        User friend = checkContainsUserId(friendId);
+
         log.info("Запрошен список общих друзей для пользователей с id: {} и id: {}", userId, friendId);
         return users.get(userId).getFriends().stream()
                 .map(id -> {
@@ -89,11 +107,12 @@ public class InMemoryUserStorage implements UserStorage {
                 .collect(Collectors.toSet());
     }
 
-    @Override
-    public void checkContainsUserId(Long userId) {
+    @Override // Метод для проверки существования пользователя по его идентификатору
+    public User checkContainsUserId(Long userId) {
         if (!users.containsKey(userId)) {
             throw new NotFoundException("Пользователь c id: " + userId + " не найден");
         }
+        return users.get(userId);
     }
 
     private long getNextId() {

@@ -57,7 +57,7 @@ public class UserService {
     }
 
     // Метод для проверки существования пользователя по его идентификатору
-    public void checkContainsUserId(Long userId) {
-        userStorage.checkContainsUserId(userId);
+    public User checkContainsUserId(Long userId) {
+        return userStorage.checkContainsUserId(userId);
     }
 }

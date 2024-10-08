@@ -32,5 +32,5 @@ public interface UserStorage {
     Collection<User> listOfMutualFriends(Long userId, Long friendId);
 
     // Метод для проверки существования пользователя по его идентификатору
-    void checkContainsUserId(Long userId);
+    User checkContainsUserId(Long userId);
 }
