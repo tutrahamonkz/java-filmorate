@@ -23,8 +23,8 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override // Метод для получения фильма по его идентификатору
     public Film getFilmById(Long filmId) {
-        checkContainsFilmId(filmId); // Проверяем, существует ли фильм с данным идентификатором
-        return films.get(filmId); // Возвращаем фильм
+        // Проверяем, существует ли фильм с данным идентификатором и возвращаем его
+        return checkContainsFilmId(filmId);
     }
 
     @Override // Метод для создания нового фильма
@@ -44,11 +44,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override  // Метод для добавления лайка к фильму от пользователя
-    public Film addLike(Long filmId, Long userId) {
-        checkContainsFilmId(filmId); // Проверяем, существует ли фильм с данным идентификатором
     public Film addLike(Long filmId, Long userId, UserStorage userStorage) {
+        Film film = checkContainsFilmId(filmId); // Проверяем, существует ли фильм с данным идентификатором
         userStorage.checkContainsUserId(userId); // Проверяем, существует ли пользователь с данным идентификатором
-        Film film = films.get(filmId); // Получаем фильм по идентификатору
         film.getLikes().add(userId); // Добавляем идентификатор пользователя в список лайков фильма
         // Логируем действие пользователя
         log.info("Пользователь с id: {} поставил лайк фильму с id: {}", userId, filmId);
@@ -56,11 +54,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override // Метод для удаления лайка от пользователя к фильму
-    public Film deleteLike(Long filmId, Long userId) {
-        checkContainsFilmId(filmId); // Проверяем, существует ли фильм с данным идентификатором
     public Film deleteLike(Long filmId, Long userId, UserStorage userStorage) {
+        Film film = checkContainsFilmId(filmId); // Проверяем, существует ли фильм с данным идентификатором
         userStorage.checkContainsUserId(userId); // Проверяем, существует ли пользователь с данным идентификатором
-        Film film = films.get(filmId); // Получаем фильм по идентификатору
         film.getLikes().remove(userId); // Удаляем идентификатор пользователя из списка лайков фильма
         // Логируем действие пользователя
         log.info("Пользователь с id: {} удалил лайк фильму с id: {}", userId, filmId);
@@ -89,9 +85,10 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     // Приватный метод для проверки существования фильма по его идентификатору
-    private void checkContainsFilmId(Long filmId) {
+    private Film checkContainsFilmId(Long filmId) {
         if (!films.containsKey(filmId)) {
             throw new NotFoundException("Фильм c id: " + filmId + " не найден");
         }
+        return films.get(filmId);
     }
 }
