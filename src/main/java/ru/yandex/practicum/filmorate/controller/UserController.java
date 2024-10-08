@@ -1,14 +1,12 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 
 import java.util.Collection;
 
-@Slf4j // Аннотация для автоматической генерации логгера
 @RestController // Указывает, что этот класс является REST-контроллером
 @RequestMapping("/users") // Устанавливает базовый путь для всех методов контроллера
 public class UserController {
