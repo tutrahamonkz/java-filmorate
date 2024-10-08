@@ -7,8 +7,8 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j // Аннотация для автоматической генерации логгера
@@ -89,22 +89,22 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override // Метод для получения списка взаимных друзей между двумя пользователями
     public Collection<User> listOfMutualFriends(Long userId, Long friendId) {
-        checkContainsUserId(userId);
-        checkContainsUserId(friendId);
         // Проверяем существование обоих пользователей по их идентификаторам
         User user = checkContainsUserId(userId);
         User friend = checkContainsUserId(friendId);
 
+        // Получаем список идентификаторов общих друзей
+        List<Long> commonsFriendsId = user.getFriends().stream()
+                .filter(friend.getFriends()::contains)
+                .toList();
+
+        // Логируем запрос на получение списка общих друзей
         log.info("Запрошен список общих друзей для пользователей с id: {} и id: {}", userId, friendId);
-        return users.get(userId).getFriends().stream()
-                .map(id -> {
-                    if (users.get(friendId).getFriends().contains(id)) {
-                        return users.get(id);
-                    }
-                    return null;
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+
+        // Возвращает коллекцию общих друзей между userId и friendId
+        return commonsFriendsId.stream()
+                .map(users::get)
+                .toList();
     }
 
     @Override // Метод для проверки существования пользователя по его идентификатору
