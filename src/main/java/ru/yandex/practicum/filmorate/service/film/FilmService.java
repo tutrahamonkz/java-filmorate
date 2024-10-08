@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service.film;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 
@@ -10,10 +11,12 @@ import java.util.Collection;
 public class FilmService {
 
     private final FilmStorage filmStorage; // Хранение ссылки на объект FilmStorage для работы с данными о фильмах
+    private final UserStorage userStorage; // Хранилище пользователей для проверки существования пользователей
 
     // Конструктор, принимающий FilmStorage в качестве параметра
-    public FilmService(FilmStorage filmStorage) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
         this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
     }
 
     // Метод для получения всех фильмов из хранилища
@@ -38,12 +41,12 @@ public class FilmService {
 
     // Метод для добавления лайка к фильму от пользователя
     public Film addLike(Long filmId, Long userId) {
-        return filmStorage.addLike(filmId, userId);
+        return filmStorage.addLike(filmId, userId, userStorage);
     }
 
     // Метод для удаления лайка от пользователя к фильму
     public Film deleteLike(Long filmId, Long userId) {
-        return filmStorage.deleteLike(filmId, userId);
+        return filmStorage.deleteLike(filmId, userId, userStorage);
     }
 
     // Метод для получения самых популярных фильмов по количеству лайков

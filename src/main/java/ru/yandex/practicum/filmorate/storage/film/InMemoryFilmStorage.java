@@ -11,16 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
+@Slf4j // Аннотация для автоматической генерации логгера
 @Component // Аннотация, указывающая, что данный класс является компонентом Spring
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>(); // Хранение фильмов в виде пары "идентификатор - фильм"
-    private final UserStorage userStorage; // Хранилище пользователей для проверки существования пользователей
-
-    // Конструктор, принимающий UserStorage для работы с пользователями
-    public InMemoryFilmStorage(UserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
 
     @Override // Метод для получения всех фильмов из хранилища
     public Collection<Film> getFilms() {
@@ -52,6 +46,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override  // Метод для добавления лайка к фильму от пользователя
     public Film addLike(Long filmId, Long userId) {
         checkContainsFilmId(filmId); // Проверяем, существует ли фильм с данным идентификатором
+    public Film addLike(Long filmId, Long userId, UserStorage userStorage) {
         userStorage.checkContainsUserId(userId); // Проверяем, существует ли пользователь с данным идентификатором
         Film film = films.get(filmId); // Получаем фильм по идентификатору
         film.getLikes().add(userId); // Добавляем идентификатор пользователя в список лайков фильма
@@ -63,6 +58,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override // Метод для удаления лайка от пользователя к фильму
     public Film deleteLike(Long filmId, Long userId) {
         checkContainsFilmId(filmId); // Проверяем, существует ли фильм с данным идентификатором
+    public Film deleteLike(Long filmId, Long userId, UserStorage userStorage) {
         userStorage.checkContainsUserId(userId); // Проверяем, существует ли пользователь с данным идентификатором
         Film film = films.get(filmId); // Получаем фильм по идентификатору
         film.getLikes().remove(userId); // Удаляем идентификатор пользователя из списка лайков фильма
