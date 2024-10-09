@@ -109,10 +109,11 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override // Метод для проверки существования пользователя по его идентификатору
     public User checkContainsUserId(Long userId) {
-        if (!users.containsKey(userId)) {
+        User user = users.getOrDefault(userId, null);
+        if (user == null) {
             throw new NotFoundException("Пользователь c id: " + userId + " не найден");
         }
-        return users.get(userId);
+        return user;
     }
 
     // Приватный метод для генерации следующего идентификатора пользователя

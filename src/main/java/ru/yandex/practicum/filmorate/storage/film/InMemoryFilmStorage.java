@@ -83,9 +83,10 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     // Приватный метод для проверки существования фильма по его идентификатору
     private Film checkContainsFilmId(Long filmId) {
-        if (!films.containsKey(filmId)) {
+        Film film = films.getOrDefault(filmId, null);
+        if (film == null) {
             throw new NotFoundException("Фильм c id: " + filmId + " не найден");
         }
-        return films.get(filmId);
+        return film;
     }
 }
