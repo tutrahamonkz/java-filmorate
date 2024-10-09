@@ -3,7 +3,10 @@ package ru.yandex.practicum.filmorate.validate;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 @Target(ElementType.FIELD) // Указываем, что аннотация может применяться к полям
 @Retention(RetentionPolicy.RUNTIME) // Указываем, что аннотация будет доступна в рантайме

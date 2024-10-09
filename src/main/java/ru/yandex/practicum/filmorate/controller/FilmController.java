@@ -1,54 +1,58 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.film.FilmService;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
-@Slf4j // Аннотация для автоматической генерации логгера
 @RestController // Указывает, что этот класс является REST-контроллером
 @RequestMapping("/films") // Устанавливает базовый путь для всех методов контроллера
 public class FilmController {
 
-    private final Map<Long, Film> films = new HashMap<>(); // Хранение фильмов в виде пары "идентификатор - фильм"
+    // Константа для хранения значения по умолчанию количества популярных фильмов, отображаемых в ответе
+    private static final String DEFAULT_COUNT_POPULAR_MOVIES_DISPLAYED = "10";
+
+    private final FilmService filmService; // Сервис для работы с фильмами
+
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
+    }
 
     @GetMapping // Обрабатывает GET-запросы по пути "/films"
     public Collection<Film> findAll() {
-        return films.values(); // Возвращает все фильмы
+        return filmService.getFilms(); // Возвращает все фильмы
     }
 
     @PostMapping // Обрабатывает POST-запросы по пути "/films"
     public Film create(@Valid @RequestBody Film film) {
-        film.setId(getNextId()); // Генерируем следующий идентификатор для нового фильма
-        films.put(film.getId(), film); // Сохраняем фильм в коллекцию
-        log.info("Создан фильм с id: {}", film.getId()); // Логируем информацию о создании фильма
-        return film; // Возвращаем созданный фильм
+        return filmService.createFilm(film); // Создает новый фильм и возвращает его
     }
 
     @PutMapping // Обрабатывает PUT-запросы по пути "/films"
     public Film update(@Valid @RequestBody Film newFilm) {
-        // Проверяем, существует ли фильм с указанным идентификатором
-        if (films.containsKey(newFilm.getId())) {
-            films.put(newFilm.getId(), newFilm); // Обновляем информацию о фильме
-            log.info("Обновлен фильм с id: {}", newFilm.getId()); // Логируем информацию об обновлении фильма
-            return newFilm; // Возвращаем обновленный фильм
-        }
-        // Если фильм не найден, выбрасываем исключение NotFoundException
-        throw new NotFoundException("Фильм с id: " + newFilm.getId() + " не найден");
+        return filmService.updateFilm(newFilm); // Обновляет фильм и возвращает обновленный объект
     }
 
-    // Метод для генерации следующего идентификатора
-    private long getNextId() {
-        long currentMaxId = films.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+    // Обрабатывает PUT-запросы по пути "/films/{id}/like/{userId}" для добавления лайка фильму
+    @PutMapping("/{id}/like/{userId}")
+    public Film addLike(@PathVariable Long id, @PathVariable Long userId) {
+        return filmService.addLike(id, userId); // Добавляет лайк фильму от пользователя и возвращает обновленный фильм
+    }
+
+    // Обрабатывает DELETE-запросы по пути "/films/{id}/like/{userId}" для удаления лайка у фильма
+    @DeleteMapping("/{id}/like/{userId}")
+    public Film deleteLike(@PathVariable Long id, @PathVariable Long userId) {
+        // Удаляет лайк у фильма от пользователя и возвращает обновленный фильм
+        return filmService.deleteLike(id, userId);
+    }
+
+    // Обрабатывает GET-запросы по пути "/films/popular" для получения популярных фильмов по количеству лайков
+    @GetMapping("/popular")
+    public Collection<Film> getMostPopularByNumberOfLikes(
+            @RequestParam(required = false, defaultValue = DEFAULT_COUNT_POPULAR_MOVIES_DISPLAYED) Long count) {
+        // Возвращает список популярных фильмов в зависимости от заданного количества
+        return filmService.getMostPopularByNumberOfLikes(count);
     }
 }
