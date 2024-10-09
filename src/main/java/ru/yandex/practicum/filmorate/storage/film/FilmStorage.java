@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 
@@ -21,10 +20,10 @@ public interface FilmStorage {
     Film updateFilm(Film film);
 
     // Метод для добавления лайка к фильму от пользователя
-    Film addLike(Long filmId, Long userId, UserStorage userStorage);
+    Film addLike(Long filmId, Long userId);
 
     // Метод для удаления лайка от пользователя к фильму
-    Film deleteLike(Long filmId, Long userId, UserStorage userStorage);
+    Film deleteLike(Long filmId, Long userId);
 
     // Метод для получения самых популярных фильмов по количеству лайков
     Collection<Film> getMostPopularByNumberOfLikes(Long count);

@@ -41,12 +41,14 @@ public class FilmService {
 
     // Метод для добавления лайка к фильму от пользователя
     public Film addLike(Long filmId, Long userId) {
-        return filmStorage.addLike(filmId, userId, userStorage);
+        userStorage.checkContainsUserId(userId); // Проверяем, существует ли пользователь с данным идентификатором
+        return filmStorage.addLike(filmId, userId);
     }
 
     // Метод для удаления лайка от пользователя к фильму
     public Film deleteLike(Long filmId, Long userId) {
-        return filmStorage.deleteLike(filmId, userId, userStorage);
+        userStorage.checkContainsUserId(userId); // Проверяем, существует ли пользователь с данным идентификатором
+        return filmStorage.deleteLike(filmId, userId);
     }
 
     // Метод для получения самых популярных фильмов по количеству лайков

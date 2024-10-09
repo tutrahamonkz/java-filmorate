@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,9 +43,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override  // Метод для добавления лайка к фильму от пользователя
-    public Film addLike(Long filmId, Long userId, UserStorage userStorage) {
+    public Film addLike(Long filmId, Long userId) {
         Film film = checkContainsFilmId(filmId); // Проверяем, существует ли фильм с данным идентификатором
-        userStorage.checkContainsUserId(userId); // Проверяем, существует ли пользователь с данным идентификатором
         film.getLikes().add(userId); // Добавляем идентификатор пользователя в список лайков фильма
         // Логируем действие пользователя
         log.info("Пользователь с id: {} поставил лайк фильму с id: {}", userId, filmId);
@@ -54,9 +52,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override // Метод для удаления лайка от пользователя к фильму
-    public Film deleteLike(Long filmId, Long userId, UserStorage userStorage) {
+    public Film deleteLike(Long filmId, Long userId) {
         Film film = checkContainsFilmId(filmId); // Проверяем, существует ли фильм с данным идентификатором
-        userStorage.checkContainsUserId(userId); // Проверяем, существует ли пользователь с данным идентификатором
         film.getLikes().remove(userId); // Удаляем идентификатор пользователя из списка лайков фильма
         // Логируем действие пользователя
         log.info("Пользователь с id: {} удалил лайк фильму с id: {}", userId, filmId);
