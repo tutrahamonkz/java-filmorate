@@ -5,11 +5,10 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Slf4j // Аннотация для автоматической генерации логгера
 @Component // Аннотация, указывающая, что данный класс является компонентом Spring
@@ -18,8 +17,8 @@ public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, User> users = new HashMap<>();
 
     @Override // Метод для получения всех пользователей из хранилища
-    public Collection<User> getUsers() {
-        return users.values(); // Возвращает коллекцию всех пользователей
+    public List<User> getUsers() {
+        return users.values().stream().toList(); // Возвращает коллекцию всех пользователей
     }
 
     @Override // Метод для создания нового пользователя
@@ -39,8 +38,8 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override  // Метод для получения пользователя по его идентификатору
-    public User getUserById(Long id) {
-        return checkContainsUserId(id); // Возвращаем пользователя по его идентификатору
+    public Optional<User> getUserById(Long id) {
+        return Optional.ofNullable(checkContainsUserId(id)); // Возвращаем пользователя по его идентификатору
     }
 
     @Override // Метод для добавления пользователя в друзья
@@ -75,7 +74,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override  // Метод для получения списка друзей указанного пользователя
-    public Collection<User> getUserFriends(Long userId) {
+    public List<User> getUserFriends(Long userId) {
         User user = checkContainsUserId(userId); // Проверяем существование пользователя по его идентификатору
 
         // Логируем запрос на получение списка друзей пользователя
@@ -84,11 +83,11 @@ public class InMemoryUserStorage implements UserStorage {
         // Возвращаем коллекцию друзей пользователя userId
         return user.getFriends().stream()
                 .map(users::get)
-                .collect(Collectors.toSet());
+                .toList();
     }
 
     @Override // Метод для получения списка взаимных друзей между двумя пользователями
-    public Collection<User> listOfMutualFriends(Long userId, Long friendId) {
+    public List<User> listOfMutualFriends(Long userId, Long friendId) {
         // Проверяем существование обоих пользователей по их идентификаторам
         User user = checkContainsUserId(userId);
         User friend = checkContainsUserId(friendId);

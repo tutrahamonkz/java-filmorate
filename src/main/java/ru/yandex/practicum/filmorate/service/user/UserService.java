@@ -5,6 +5,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @Service // Аннотация указывает, что данный класс является сервисом и может быть использован в контексте Spring
 public class UserService {
@@ -22,7 +23,7 @@ public class UserService {
     }
 
     // Метод для получения пользователя по его идентификатору
-    public User getUserById(Long id) {
+    public Optional<User> getUserById(Long id) {
         return userStorage.getUserById(id);
     }
 
