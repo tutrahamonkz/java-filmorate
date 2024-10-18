@@ -48,14 +48,9 @@ public class InMemoryUserStorage implements UserStorage {
         User user = checkContainsUserId(userId);
         User friend = checkContainsUserId(friendId);
 
-        // Добавляем friendId в список друзей пользователя userId и наоборот
-        user.getFriends().add(friendId);
-        friend.getFriends().add(userId);
-
         // Логируем действие добавления в друзья
         log.info("Пользователь с id: {} добавил в друзья пользователя с id: {}", userId, friendId);
         return users.get(userId); // Возвращаем обновленного пользователя userId
-
     }
 
     @Override // Метод для удаления пользователя из друзей

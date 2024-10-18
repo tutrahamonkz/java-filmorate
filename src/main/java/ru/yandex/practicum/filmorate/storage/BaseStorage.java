@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -28,7 +29,7 @@ public class BaseStorage<T> {
     }
 
     protected List<T> findMany(String query, Object... params) {
-        return jdbc.queryForList(query, entityType, params);
+        return jdbc.query(query, params, mapper);
     }
 
     protected Boolean delete(String query, Long id) {
@@ -36,22 +37,18 @@ public class BaseStorage<T> {
         return rowsDeleted > 0;
     }
 
-    protected Long insert(String query, Object... params) {
+    protected long insert(String query, Object... params) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbc.update(con -> {
-            PreparedStatement ps = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-            for (int i = 0; i < params.length; i++) {
-                ps.setObject(i + 1, params[i]);
+        jdbc.update(connection -> {
+            PreparedStatement ps = connection
+                    .prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            for (int idx = 0; idx < params.length; idx++) {
+                ps.setObject(idx + 1, params[idx]);
             }
             return ps;
         }, keyHolder);
 
-        Long id = keyHolder.getKeyAs(Long.class);
-        if (id != null) {
-            return id;
-        } else {
-            throw new InternalServerException("Не удалось сохранить данные");
-        }
+        return Objects.requireNonNull(keyHolder.getKeyAs(Integer.class)).longValue();
     }
 
     protected void update(String query, Object... params) {
@@ -59,5 +56,10 @@ public class BaseStorage<T> {
         if (rowsUpdate == 0) {
             throw new InternalServerException("Не удалось обновить данные");
         }
+    }
+
+    protected boolean delete(String query, Object... params) {
+        int rowsDeleted = jdbc.update(query, params);
+        return rowsDeleted > 0;
     }
 }

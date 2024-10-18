@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS friendship (
   user_id INTEGER REFERENCES users(user_id),
   friend_id INTEGER REFERENCES users(user_id),
-  accept boolean,
+  accept boolean DEFAULT false,
   constraint pk_viewing primary key (user_id, friend_id)
 );
 
@@ -24,7 +24,6 @@ CREATE TABLE IF NOT EXISTS films (
   description VARCHAR,
   release_date TIMESTAMP,
   duration INTEGER,
-  genre INTEGER,
   mpa INTEGER REFERENCES mpa_type(mpa_id)
 );
 
