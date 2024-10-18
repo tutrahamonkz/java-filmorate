@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 
-import java.util.Collection;
 import java.util.List;
 
 @RestController // Указывает, что этот класс является REST-контроллером
@@ -21,24 +20,24 @@ public class UserController {
     }
 
     @GetMapping // Обрабатывает GET-запросы по пути "/users"
-    public Collection<User> findAll() {
+    public List<UserDto> findAll() {
         return userService.getUsers(); // Возвращает всех пользователей
     }
 
     @PostMapping // Обрабатывает POST-запросы по пути "/users"
-    public User create(@Valid @RequestBody User user) {
+    public UserDto create(@Valid @RequestBody User user) {
             return userService.userCreate(user); // Создает нового пользователя и возвращает его
     }
 
     @PutMapping // Обрабатывает PUT-запросы по пути "/users"
-    public User update(@RequestBody UpdateUserRequest request) {
+    public UserDto update(@RequestBody UpdateUserRequest request) {
         // Обновляет информацию о пользователе и возвращает обновленного пользователя
         return userService.userUpdate(request);
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id) {
-        return userService.getUserById(id).get();
+    public UserDto getUserById(@PathVariable Long id) {
+        return userService.getUserById(id);
     }
 
     // Обрабатывает PUT-запросы для добавления друга

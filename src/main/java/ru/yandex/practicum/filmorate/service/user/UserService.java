@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.friend.FriendDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,22 +30,24 @@ public class UserService {
     }
 
     // Метод для получения всех пользователей из хранилища
-    public Collection<User> getUsers() {
-        return userStorage.getUsers();
+    public List<UserDto> getUsers() {
+        return userStorage.getUsers().stream()
+                .map(UserMapper::mapToUserDto)
+                .toList();
     }
 
     // Метод для получения пользователя по его идентификатору
-    public Optional<User> getUserById(Long id) {
-        return userStorage.getUserById(id);
+    public UserDto getUserById(Long id) {
+        return UserMapper.mapToUserDto(userStorage.getUserById(id).get());
     }
 
     // Метод для создания нового пользователя
-    public User userCreate(User user) {
-        return userStorage.userCreate(user);
+    public UserDto userCreate(User user) {
+        return UserMapper.mapToUserDto(userStorage.userCreate(user));
     }
 
     // Метод для обновления существующего пользователя
-    public User userUpdate(UpdateUserRequest request) {
+    public UserDto userUpdate(UpdateUserRequest request) {
         if (!request.hasId()) {
             throw new InternalServerException("Не передан id пользователя");
         }
@@ -54,7 +55,7 @@ public class UserService {
                 .map(user -> UserMapper.updateUserFields(user, request))
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         updateUser = userStorage.userUpdate(updateUser);
-        return updateUser;
+        return UserMapper.mapToUserDto(updateUser);
     }
 
     // Метод для добавления пользователя в друзья
@@ -154,7 +155,7 @@ public class UserService {
     }
 
     // Метод для проверки существования пользователя по его идентификатору
-    public User checkContainsUserId(Long userId) {
-        return userStorage.checkContainsUserId(userId);
+    public UserDto checkContainsUserId(Long userId) {
+        return UserMapper.mapToUserDto(userStorage.checkContainsUserId(userId));
     }
 }
