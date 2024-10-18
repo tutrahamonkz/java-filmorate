@@ -13,8 +13,4 @@ public class UserDto {
     private String name;
     private LocalDate birthday;
     private List<Long> friends;
-
-    public void setFriend(Long id) {
-        friends.add(id);
-    }
 }
