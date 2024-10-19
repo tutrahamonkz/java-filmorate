@@ -9,7 +9,9 @@ import lombok.Data;
 import ru.yandex.practicum.filmorate.validate.MinDate;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data // Аннотация @Data генерирует геттеры, сеттеры, toString, equals и hashCode для класса
@@ -41,4 +43,8 @@ public class Film {
 
     // Множество идентификаторов пользователей, которые поставили лайк фильму
     private final Set<Long> likes = new HashSet<>();
+
+    private final List<String> genres = new ArrayList<>();
+
+    private String mpa;
 }

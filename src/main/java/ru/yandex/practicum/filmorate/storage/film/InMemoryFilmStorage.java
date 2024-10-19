@@ -5,10 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j // Аннотация для автоматической генерации логгера
 @Component // Аннотация, указывающая, что данный класс является компонентом Spring
@@ -21,9 +18,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override // Метод для получения фильма по его идентификатору
-    public Film getFilmById(Long filmId) {
+    public Optional<Film> getFilmById(Long filmId) {
         // Проверяем, существует ли фильм с данным идентификатором и возвращаем его
-        return checkContainsFilmId(filmId);
+        return Optional.of(checkContainsFilmId(filmId));
     }
 
     @Override // Метод для создания нового фильма

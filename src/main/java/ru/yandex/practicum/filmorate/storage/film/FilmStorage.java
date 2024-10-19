@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
+import java.util.Optional;
 
 // Интерфейс FilmStorage определяет методы для работы с фильмами
 public interface FilmStorage {
@@ -11,7 +12,7 @@ public interface FilmStorage {
     Collection<Film> getFilms();
 
     // Метод для получения фильма по его идентификатору
-    Film getFilmById(Long filmId);
+    Optional<Film> getFilmById(Long filmId);
 
     // Метод для создания нового фильма
     Film createFilm(Film film);

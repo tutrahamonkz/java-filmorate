@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 
@@ -31,8 +32,8 @@ public class FilmController {
     }
 
     @PutMapping // Обрабатывает PUT-запросы по пути "/films"
-    public Film update(@Valid @RequestBody Film newFilm) {
-        return filmService.updateFilm(newFilm); // Обновляет фильм и возвращает обновленный объект
+    public Film update(@RequestBody UpdateFilmRequest request) {
+        return filmService.updateFilm(request); // Обновляет фильм и возвращает обновленный объект
     }
 
     // Обрабатывает PUT-запросы по пути "/films/{id}/like/{userId}" для добавления лайка фильму
