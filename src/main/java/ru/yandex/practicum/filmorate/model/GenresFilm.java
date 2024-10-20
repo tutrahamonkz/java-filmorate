@@ -5,8 +5,7 @@ import lombok.Data;
 
 @Data // Генерирует геттеры, сеттеры, методы equals, hashCode и toString
 @Builder // Позволяет использовать паттерн Builder для создания объектов класса
-public class Friendship {
-    private Long userId;
-    private Long friendId;
-    private boolean accept;
+public class GenresFilm {
+    private Long filmId; // Идентификатор фильма, к которому относится жанр
+    private Long genreId; // Идентификатор жанра
 }

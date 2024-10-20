@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.util.List;
 
-@Data
+@Data // Аннотация Lombok для автоматической генерации геттеров, сеттеров, toString и других методов
 public class UserDto {
     private Long id;
     private String email;

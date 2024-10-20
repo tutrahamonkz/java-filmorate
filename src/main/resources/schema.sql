@@ -13,9 +13,10 @@ CREATE TABLE IF NOT EXISTS friendship (
   constraint pk_viewing primary key (user_id, friend_id)
 );
 
+
 CREATE TABLE IF NOT EXISTS mpa_type (
   mpa_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  mpa_name VARCHAR
+  mpa_name VARCHAR UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS films (
@@ -33,7 +34,7 @@ CREATE TABLE IF NOT EXISTS likes (
   user_id INTEGER REFERENCES users(user_id)
 );
 
-CREATE TABLE IF NOT EXISTS genres_type (
+CREATE TABLE IF NOT EXISTS genre_type (
   genre_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   genre_name VARCHAR
 );
@@ -41,5 +42,5 @@ CREATE TABLE IF NOT EXISTS genres_type (
 CREATE TABLE IF NOT EXISTS genres_film (
   genres_film_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   film_id INTEGER REFERENCES films(film_id),
-  genre_id INTEGER REFERENCES genres_type(genre_id)
+  genre_id INTEGER REFERENCES genre_type(genre_id)
 );

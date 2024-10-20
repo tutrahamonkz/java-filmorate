@@ -42,7 +42,7 @@ public class InMemoryUserStorage implements UserStorage {
         return Optional.ofNullable(checkContainsUserId(id)); // Возвращаем пользователя по его идентификатору
     }
 
-    @Override // Метод для добавления пользователя в друзья
+    // Метод для добавления пользователя в друзья
     public User friending(Long userId, Long friendId) {
         // Проверяем существование обоих пользователей по их идентификаторам
         User user = checkContainsUserId(userId);
@@ -53,7 +53,7 @@ public class InMemoryUserStorage implements UserStorage {
         return users.get(userId); // Возвращаем обновленного пользователя userId
     }
 
-    @Override // Метод для удаления пользователя из друзей
+    // Метод для удаления пользователя из друзей
     public User unfriending(Long userId, Long friendId) {
         // Проверяем существование обоих пользователей по их идентификаторам
         User user = checkContainsUserId(userId);
@@ -68,7 +68,7 @@ public class InMemoryUserStorage implements UserStorage {
         return users.get(friendId); // Возвращаем обновленного пользователя friendId
     }
 
-    @Override  // Метод для получения списка друзей указанного пользователя
+    // Метод для получения списка друзей указанного пользователя
     public List<User> getUserFriends(Long userId) {
         User user = checkContainsUserId(userId); // Проверяем существование пользователя по его идентификатору
 
@@ -81,7 +81,7 @@ public class InMemoryUserStorage implements UserStorage {
                 .toList();
     }
 
-    @Override // Метод для получения списка взаимных друзей между двумя пользователями
+    // Метод для получения списка взаимных друзей между двумя пользователями
     public List<User> listOfMutualFriends(Long userId, Long friendId) {
         // Проверяем существование обоих пользователей по их идентификаторам
         User user = checkContainsUserId(userId);
@@ -101,7 +101,7 @@ public class InMemoryUserStorage implements UserStorage {
                 .toList();
     }
 
-    @Override // Метод для проверки существования пользователя по его идентификатору
+    // Метод для проверки существования пользователя по его идентификатору
     public User checkContainsUserId(Long userId) {
         User user = users.getOrDefault(userId, null);
         if (user == null) {

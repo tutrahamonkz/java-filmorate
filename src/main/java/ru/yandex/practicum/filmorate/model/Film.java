@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -9,7 +10,6 @@ import lombok.Data;
 import ru.yandex.practicum.filmorate.validate.MinDate;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,7 +44,11 @@ public class Film {
     // Множество идентификаторов пользователей, которые поставили лайк фильму
     private final Set<Long> likes = new HashSet<>();
 
-    private final List<String> genres = new ArrayList<>();
 
-    private String mpa;
+    // Список жанров фильма
+    private List<@Valid Genre> genres;
+
+    // рейтинг MPA фильма
+    @Valid
+    private Mpa mpa;
 }

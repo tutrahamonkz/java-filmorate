@@ -19,19 +19,4 @@ public interface UserStorage {
 
     // Метод для обновления информации о существующем пользователе
     User userUpdate(User user);
-
-    // Метод для добавления пользователя в друзья
-    User friending(Long userId, Long friendId);
-
-    // Метод для удаления пользователя из друзей
-    User unfriending(Long userId, Long friendId);
-
-    // Метод для получения списка друзей указанного пользователя
-    List<User> getUserFriends(Long userId);
-
-    // Метод для получения списка взаимных друзей между двумя пользователями
-    List<User> listOfMutualFriends(Long userId, Long friendId);
-
-    // Метод для проверки существования пользователя по его идентификатору
-    User checkContainsUserId(Long userId);
 }
