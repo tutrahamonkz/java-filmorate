@@ -38,7 +38,13 @@ public class UserService {
     // Метод для получения пользователя по его идентификатору
     public UserDto getUserById(Long id) {
         // Получаем пользователя по id и преобразуем в UserDto
-        return UserMapper.mapToUserDto(userStorage.getUserById(id).get());
+        UserDto user = UserMapper.mapToUserDto(userStorage.getUserById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id: " + id + " не найден")));
+        // Получаем друзей пользователя
+        List<Friendship> friendships = friendDbStorage.findAllFriends(id);
+        // Добавляем друзей пользователю
+        user.setFriends(friendships.stream().map(Friendship::getFriendId).toList());
+        return user; // Возвращаем пользователя с друзьями
     }
 
     // Метод для создания нового пользователя
@@ -51,7 +57,7 @@ public class UserService {
     public UserDto userUpdate(UpdateUserRequest request) {
         if (!request.hasId()) { // Проверяем, был ли передан id пользователя
             // Выбрасываем исключение, если id отсутствует
-            throw new InternalServerException("Не передан id пользователя");
+            throw new NotFoundException("Не передан id пользователя");
         }
         User updateUser = userStorage.getUserById(request.getId()) // Получаем пользователя по id из запроса
                 // Обновляем поля пользователя на основе данных из запроса

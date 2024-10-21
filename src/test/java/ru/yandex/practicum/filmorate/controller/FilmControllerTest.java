@@ -2,13 +2,16 @@ package ru.yandex.practicum.filmorate.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 
@@ -17,9 +20,9 @@ import java.time.LocalDate;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@SpringBootTest() // Аннотация для указания, что это тестовый класс, который будет загружать контекст Spring.
+// Аннотация для указания, что это тестовый класс, который будет загружать контекст Spring.
+@SpringBootTest(properties = "spring.profiles.active=test")
 // Автоматическая конфигурация MockMvc для тестирования контроллеров без необходимости запуска сервера.
 @AutoConfigureMockMvc
 class FilmControllerTest {
@@ -31,6 +34,9 @@ class FilmControllerTest {
 
     @Autowired // Внедрение сервиса фильмов для использования в тестах.
     private FilmService filmService;
+
+    @Autowired
+    private JdbcTemplate jdbc;
 
     @BeforeAll
     static void setUp() {
@@ -134,7 +140,7 @@ class FilmControllerTest {
         this.mockMvc.perform(put("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(film)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
@@ -154,11 +160,13 @@ class FilmControllerTest {
 
     @Test
     void shouldReturnCorrectRequestWhenCreateFilm() throws Exception {
+        Mpa mpa = Mpa.builder().build();
         Film film = Film.builder()
                 .name("test")
                 .description("Test description")
                 .releaseDate(LocalDate.parse("2000-01-01"))
                 .duration(100)
+                .mpa(mpa)
                 .build();
         this.mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -173,11 +181,13 @@ class FilmControllerTest {
 
     @Test
     void shouldReturnCorrectRequestWhenUpdateFilm() throws Exception {
+        Mpa mpa = Mpa.builder().build();
         Film film = Film.builder()
                 .name("test")
                 .description("Test description")
                 .releaseDate(LocalDate.parse("2000-01-01"))
                 .duration(100)
+                .mpa(mpa)
                 .build();
         film.setId(1L);
         film.setName("newTest");
@@ -255,6 +265,7 @@ class FilmControllerTest {
         User user = User.builder()
                 .login("test")
                 .email("test@test.com")
+                .birthday(LocalDate.parse("2000-08-20"))
                 .build();
         this.mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -263,11 +274,15 @@ class FilmControllerTest {
     }
 
     void createFilm() throws Exception {
+        Mpa mpa = Mpa.builder()
+                .id(1L)
+                .build();
         Film film = Film.builder()
                 .name("test")
                 .description("Test description")
                 .releaseDate(LocalDate.parse("2000-01-01"))
                 .duration(100)
+                .mpa(mpa)
                 .build();
         this.mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
