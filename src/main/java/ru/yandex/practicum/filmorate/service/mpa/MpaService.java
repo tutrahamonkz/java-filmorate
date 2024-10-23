@@ -25,6 +25,6 @@ public class MpaService {
     public Mpa getMpaById(@PathVariable Long id) {
         // Пытаемся получить рейтинг по ID. Если не найден, выбрасываем исключение NotFoundException.
         return mpaDbStorage.getMpaById(id)
-                .orElseThrow(() -> new NotFoundException("Рейтинг с id: " + id + " не найден"));
+                .orElseThrow(() -> new NotFoundException("MPA с id: " + id + " не найден"));
     }
 }
