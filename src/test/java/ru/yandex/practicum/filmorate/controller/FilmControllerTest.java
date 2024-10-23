@@ -261,6 +261,24 @@ class FilmControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void shouldReturnInvalidRequestWhenCreateFilmByWrongMpa() throws Exception {
+        Mpa mpa = Mpa.builder()
+                .id(999L)
+                .build();
+        Film film = Film.builder()
+                .name("test")
+                .description("Test description")
+                .releaseDate(LocalDate.parse("2000-01-01"))
+                .duration(100)
+                .mpa(mpa)
+                .build();
+        this.mockMvc.perform(post("/films")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(film)))
+                .andExpect(status().isBadRequest());
+    }
+
     void createUser() throws Exception {
         User user = User.builder()
                 .login("test")

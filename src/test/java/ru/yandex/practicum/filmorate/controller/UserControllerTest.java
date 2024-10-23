@@ -235,14 +235,19 @@ class UserControllerTest {
     @Test
     void shouldReturnInvalidRequestWhenDeleteFriendUnknownId() throws Exception {
         createTwoUsers();
-        this.mockMvc.perform(put("/users/1/friends/2")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString("")))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.friends").isNotEmpty());
         this.mockMvc.perform(delete("/users/1/friends/999"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error").value("Пользователь с id: 999 не найден"));
+    }
+
+    @Test
+    void shouldReturnInvalidRequestWhenDeleteUnknownId() throws Exception {
+        createTwoUsers();
+        this.mockMvc.perform(delete("/users/999/friends/1"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error").value("Пользователь с id: 999 не найден"));
     }
 
     @Test
@@ -260,6 +265,17 @@ class UserControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("[0].id").value(2))
                 .andExpect(jsonPath("[0].friends").isEmpty());
+    }
+
+    @Test
+    void shouldReturnInvalidRequestWhenGetFriendUnknownId() throws Exception {
+        createTwoUsers();
+        this.mockMvc.perform(put("/users/1/friends/999")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString("")))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error").value("Пользователь с id: 999 не найден"));
     }
 
     @Test
