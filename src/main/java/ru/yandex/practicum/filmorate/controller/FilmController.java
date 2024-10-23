@@ -23,17 +23,17 @@ public class FilmController {
     }
 
     @GetMapping // Обрабатывает GET-запросы по пути "/films"
-    public Collection<Film> findAll() {
+    public Collection<FilmDto> findAll() {
         return filmService.getFilms(); // Возвращает все фильмы
     }
 
     @PostMapping // Обрабатывает POST-запросы по пути "/films"
-    public Film create(@Valid @RequestBody Film film) {
+    public FilmDto create(@Valid @RequestBody Film film) {
         return filmService.createFilm(film); // Создает новый фильм и возвращает его
     }
 
     @PutMapping // Обрабатывает PUT-запросы по пути "/films"
-    public Film update(@RequestBody UpdateFilmRequest request) {
+    public FilmDto update(@RequestBody UpdateFilmRequest request) {
         return filmService.updateFilm(request); // Обновляет фильм и возвращает обновленный объект
     }
 
@@ -52,7 +52,7 @@ public class FilmController {
 
     // Обрабатывает GET-запросы по пути "/films/popular" для получения популярных фильмов по количеству лайков
     @GetMapping("/popular")
-    public Collection<Film> getMostPopularByNumberOfLikes(
+    public Collection<FilmDto> getMostPopularByNumberOfLikes(
             @RequestParam(required = false, defaultValue = DEFAULT_COUNT_POPULAR_MOVIES_DISPLAYED) Long count) {
         // Возвращает список популярных фильмов в зависимости от заданного количества
         return filmService.getMostPopularByNumberOfLikes(count);
@@ -60,7 +60,7 @@ public class FilmController {
 
     // Обрабатывает GET-запросы по пути "/films/{id}" для получения фильма с жанром по его ID
     @GetMapping("/{id}")
-    public Film getWithGenre(@PathVariable Long id) {
+    public FilmDto getWithGenre(@PathVariable Long id) {
         return filmService.getWithGenre(id);
     }
 }

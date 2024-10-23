@@ -18,7 +18,6 @@ import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Service // Аннотация указывает, что данный класс является сервисом и может быть использован в контексте Spring
@@ -43,28 +42,29 @@ public class FilmService {
     }
 
     // Метод для получения всех фильмов из хранилища
-    public List<Film> getFilms() {
-        return filmStorage.getFilms(); // Возвращаем список всех фильмов
+    public List<FilmDto> getFilms() {
+        return filmStorage.getFilms().stream().map(FilmMapper::toFilmDto).toList(); // Возвращаем список всех фильмов
     }
 
     // Метод для получения фильма по его идентификатору
-    public Optional<Film> getFilmById(Long filmId) {
-        return filmStorage.getFilmById(filmId); // Возвращаем фильм по ID или пустое значение, если не найден
+    public FilmDto getFilmById(Long filmId) {
+        return FilmMapper.toFilmDto(filmStorage.getFilmById(filmId) // Возвращаем фильм
+                .orElseThrow(() -> new NotFoundException("Фильм с id: " + filmId + " не найден")));
     }
 
     // Метод для создания нового фильма
-    public Film createFilm(Film film) {
+    public FilmDto createFilm(Film film) {
         Film newFilm = filmStorage.createFilm(film); // Создаем новый фильм в хранилище
         List<Genre> genresList = film.getGenres(); // Получаем список жанров фильма
         if (genresList != null) {
             // Если жанры существуют, добавляем их в хранилище связей жанров и фильмов
             film.getGenres().forEach(genre -> genresFilmDbStorage.addGenreToFilm(newFilm.getId(), genre.getId()));
         }
-        return newFilm; // Возвращаем созданный фильм
+        return FilmMapper.toFilmDto(newFilm); // Возвращаем созданный фильм
     }
 
     // Метод для обновления существующего фильма
-    public Film updateFilm(UpdateFilmRequest request) {
+    public FilmDto updateFilm(UpdateFilmRequest request) {
         if (!request.hasId()) { // Проверяем, передан ли ID фильма в запросе
             throw new InternalServerException("Не передан id фильма"); // Если нет, выбрасываем исключение
         }
@@ -74,7 +74,7 @@ public class FilmService {
                 // Если фильм не найден, выбрасываем исключение
                 .orElseThrow(() -> new NotFoundException("Фильм не найден"));
         updateFilm = filmStorage.updateFilm(updateFilm); // Обновляем фильм в хранилище
-        return updateFilm; // Возвращаем обновленный фильм
+        return FilmMapper.toFilmDto(updateFilm); // Возвращаем обновленный фильм
     }
 
     // Метод для добавления лайка к фильму от пользователя
@@ -102,13 +102,13 @@ public class FilmService {
     }
 
     // Метод для получения самых популярных фильмов по количеству лайков
-    public List<Film> getMostPopularByNumberOfLikes(Long count) {
+    public List<FilmDto> getMostPopularByNumberOfLikes(Long count) {
         // Возвращаем список самых популярных фильмов по количеству лайков
-        return filmStorage.getMostPopularByNumberOfLikes(count);
+        return filmStorage.getMostPopularByNumberOfLikes(count).stream().map(FilmMapper::toFilmDto).toList();
     }
 
     // Метод для получения фильма с его жанрами по идентификатору
-    public Film getWithGenre(Long id) {
+    public FilmDto getWithGenre(Long id) {
         // Получаем фильм по ID, если фильм не найден, выбрасываем исключение NotFoundException
         Film film = filmStorage.getFilmById(id)
                 .orElseThrow(() -> new NotFoundException("Фильм с id: " + id + " не найден"));
@@ -125,6 +125,6 @@ public class FilmService {
                 .filter(genre -> genreIdList.contains(genre.getId()))
                 .toList(); // Преобразуем в список
         film.setGenres(filmGenresList); // Устанавливаем полученные жанры для фильма
-        return film; // Возвращаем фильм с установленными жанрами
+        return FilmMapper.toFilmDto(film); // Возвращаем фильм с установленными жанрами
     }
 }

@@ -22,13 +22,12 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             "mpa) VALUES (?, ?, ?, ?, ?)";
     private static final String UPDATE_QUERY = "UPDATE FILMS SET film_name = ?, description = ?, release_date = ?, " +
             "duration = ? WHERE film_id = ?";
-    private static final String FIND_POPULAR_LIMIT_QUERY = "SELECT f.*, mp.MPA_NAME,  FROM FILMS f " +
+    private static final String FIND_POPULAR_LIMIT_QUERY = "SELECT f.*, mp.MPA_NAME FROM FILMS f " +
             "LEFT JOIN LIKES l ON f.FILM_ID = l.FILM_ID " +
             "JOIN MPA_TYPE mp ON f.mpa = mp.MPA_ID " +
             "GROUP BY f.FILM_ID " +
             "ORDER BY COUNT(l.USER_ID) DESC " +
             "LIMIT ?;";
-
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper, Film.class);
