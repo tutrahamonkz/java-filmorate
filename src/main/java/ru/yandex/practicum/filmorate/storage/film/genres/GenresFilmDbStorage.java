@@ -15,7 +15,8 @@ import java.util.List;
 public class GenresFilmDbStorage extends BaseStorage<GenresFilm> {
     // SQL-запросы для работы с таблицей GENRES_FILM
     private static final String INSERT_QUERY = "INSERT INTO GENRES_FILM(film_id, genre_id) VALUES (?, ?)";
-    private static final String FIND_BY_FILM_ID_QUERY = "SELECT * FROM GENRES_FILM WHERE film_id = ?";
+    private static final String FIND_BY_FILM_ID_QUERY = "SELECT * FROM GENRES_FILM gf JOIN GENRE_TYPE gt " +
+            "ON gf.GENRE_ID = gt.GENRE_ID WHERE film_id = ?";
 
     public GenresFilmDbStorage(JdbcTemplate jdbc, RowMapper<GenresFilm> mapper) {
         super(jdbc, mapper, GenresFilm.class);

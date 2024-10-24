@@ -7,5 +7,5 @@ import lombok.Data;
 @Builder // Позволяет использовать паттерн Builder для создания объектов класса
 public class GenresFilm {
     private Long filmId; // Идентификатор фильма, к которому относится жанр
-    private Long genreId; // Идентификатор жанра
+    private Genre genre; // Жанр
 }

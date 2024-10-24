@@ -13,44 +13,42 @@ import ru.yandex.practicum.filmorate.model.GenresFilm;
 import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.genres.GenresFilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service // Аннотация указывает, что данный класс является сервисом и может быть использован в контексте Spring
 public class FilmService {
 
     private final FilmStorage filmStorage; // Хранение ссылки на объект FilmStorage для работы с данными о фильмах
     private final UserStorage userStorage; // Хранилище пользователей для проверки существования пользователей
-    private final GenreDbStorage genreDbStorage; // Хранилище для работы с жанрами
     private final LikeDbStorage likeDbStorage; // Хранилище для работы с лайками
     private final GenresFilmDbStorage genresFilmDbStorage; // Хранилище для связи жанров и фильмов
 
     // Конструктор, принимающий FilmStorage, UserStorage и другие хранилища в качестве параметров
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
                        @Qualifier("userDbStorage") UserStorage userStorage,
-                       GenreDbStorage genreDbStorage, LikeDbStorage likeDbStorage,
-                       GenresFilmDbStorage genresFilmDbStorage) {
+                       LikeDbStorage likeDbStorage, GenresFilmDbStorage genresFilmDbStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
-        this.genreDbStorage = genreDbStorage;
         this.likeDbStorage = likeDbStorage;
         this.genresFilmDbStorage = genresFilmDbStorage;
     }
 
     // Метод для получения всех фильмов из хранилища
     public List<FilmDto> getFilms() {
-        return filmStorage.getFilms().stream().map(FilmMapper::toFilmDto).toList(); // Возвращаем список всех фильмов
+        return filmStorage.getFilms().stream()
+                .map(FilmMapper::toFilmDto)
+                .map(this::addGenresToFilmDto)
+                .toList(); // Возвращаем список всех фильмов
     }
 
     // Метод для создания нового фильма
     public FilmDto createFilm(Film film) {
         Film newFilm = filmStorage.createFilm(film); // Создаем новый фильм в хранилище
-        addGenresToFilm(newFilm.getId(), newFilm.getGenres()); // Добавляем жанры фильма в таблицу
+        addGenresToGenresFilm(newFilm.getId(), newFilm.getGenres()); // Добавляем жанры фильма в таблицу
         return FilmMapper.toFilmDto(newFilm); // Возвращаем созданный фильм
     }
 
@@ -88,27 +86,20 @@ public class FilmService {
         // Возвращаем список самых популярных фильмов по количеству лайков
         return filmStorage.getMostPopularByNumberOfLikes(count).stream()
                 .map(FilmMapper::toFilmDto)
+                .map(this::addGenresToFilmDto)
                 .toList();
     }
 
     // Метод для получения фильма с его жанрами по идентификатору
     public FilmDto getWithGenre(Long id) {
-        // Получаем фильм по ID, если фильм не найден, выбрасываем исключение NotFoundException
-        Film film = getFilmById(id);
-        // Получаем список идентификаторов жанров, связанных с данным фильмом
-        Set<Long> genreIdSet = genresFilmDbStorage.getGenresByFilmId(id).stream()
-                // Извлекаем идентификаторы жанров из объектов GenresFilm
-                .map(GenresFilm::getGenreId)
-                .collect(Collectors.toSet()); // Преобразуем в список
-        // Получаем список всех доступных жанров и фильтруем их по genreIdSet
-        List<Genre> filmGenresList = genreDbStorage.getAllGenres().stream()
-                        .filter(genre -> genreIdSet.contains(genre.getId()))
-                        .toList();
-        film.setGenres(filmGenresList); // Устанавливаем полученные жанры для фильма
-        return FilmMapper.toFilmDto(film); // Возвращаем фильм с установленными жанрами
+        // Получаем фильм по ID, и преобразовываем в FilmDto
+        FilmDto filmDto = FilmMapper.toFilmDto(getFilmById(id));
+        // Добавляем список жанров к фильму
+        addGenresToFilmDto(filmDto);
+        return filmDto; // Возвращаем фильм с установленными жанрами
     }
 
-    private void addGenresToFilm(Long filmId, List<Genre> genresList) {
+    private void addGenresToGenresFilm(Long filmId, List<Genre> genresList) {
         if (genresList != null) {
             // Если жанры существуют, добавляем их в хранилище связей жанров и фильмов
             genresList.forEach(genre -> genresFilmDbStorage.addGenreToFilm(filmId, genre.getId()));
@@ -124,5 +115,13 @@ public class FilmService {
     private Film getFilmById(Long filmId) {
         return filmStorage.getFilmById(filmId) // Возвращаем фильм
                 .orElseThrow(() -> new NotFoundException("Фильм с id: " + filmId + " не найден"));
+    }
+
+    private FilmDto addGenresToFilmDto(FilmDto filmDto) {
+        List<Genre> filmGenresList = genresFilmDbStorage.getGenresByFilmId(filmDto.getId()).stream()
+                .map(GenresFilm::getGenre)
+                .toList();
+        filmDto.setGenres(filmGenresList); // Устанавливаем полученные жанры для фильма
+        return filmDto;
     }
 }
