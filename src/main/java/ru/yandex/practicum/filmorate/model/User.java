@@ -8,8 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data // Аннотация @Data генерирует геттеры, сеттеры, toString, equals и hashCode для класса
 @Builder // Аннотация @Builder позволяет использовать паттерн "строитель" для создания объектов класса
@@ -33,7 +33,7 @@ public class User {
     private LocalDate birthday;
 
     // Множество идентификаторов друзей пользователя
-    private final Set<Long> friends = new HashSet<>();
+    private final List<Long> friends = new ArrayList<>();
 
     // Если имя не указано, возвращается логин
     public String getName() {

@@ -5,10 +5,10 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j // Аннотация для автоматической генерации логгера
 @Component // Аннотация, указывающая, что данный класс является компонентом Spring
@@ -16,14 +16,14 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>(); // Хранение фильмов в виде пары "идентификатор - фильм"
 
     @Override // Метод для получения всех фильмов из хранилища
-    public Collection<Film> getFilms() {
-        return films.values(); // Возвращаем коллекцию всех фильмов
+    public List<Film> getFilms() {
+        return films.values().stream().toList(); // Возвращаем коллекцию всех фильмов
     }
 
     @Override // Метод для получения фильма по его идентификатору
-    public Film getFilmById(Long filmId) {
+    public Optional<Film> getFilmById(Long filmId) {
         // Проверяем, существует ли фильм с данным идентификатором и возвращаем его
-        return checkContainsFilmId(filmId);
+        return Optional.of(checkContainsFilmId(filmId));
     }
 
     @Override // Метод для создания нового фильма
@@ -42,7 +42,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return film; // Возвращаем обновленный фильм
     }
 
-    @Override  // Метод для добавления лайка к фильму от пользователя
+    // Метод для добавления лайка к фильму от пользователя
     public Film addLike(Long filmId, Long userId) {
         Film film = checkContainsFilmId(filmId); // Проверяем, существует ли фильм с данным идентификатором
         film.getLikes().add(userId); // Добавляем идентификатор пользователя в список лайков фильма
@@ -51,7 +51,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return film; // Возвращаем обновленный фильм
     }
 
-    @Override // Метод для удаления лайка от пользователя к фильму
+    // Метод для удаления лайка от пользователя к фильму
     public Film deleteLike(Long filmId, Long userId) {
         Film film = checkContainsFilmId(filmId); // Проверяем, существует ли фильм с данным идентификатором
         film.getLikes().remove(userId); // Удаляем идентификатор пользователя из списка лайков фильма

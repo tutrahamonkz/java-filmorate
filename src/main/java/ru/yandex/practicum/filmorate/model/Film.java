@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -10,6 +11,7 @@ import ru.yandex.practicum.filmorate.validate.MinDate;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data // Аннотация @Data генерирует геттеры, сеттеры, toString, equals и hashCode для класса
@@ -41,4 +43,12 @@ public class Film {
 
     // Множество идентификаторов пользователей, которые поставили лайк фильму
     private final Set<Long> likes = new HashSet<>();
+
+
+    // Список жанров фильма
+    private List<@Valid Genre> genres;
+
+    // рейтинг MPA фильма
+    @Valid
+    private Mpa mpa;
 }
