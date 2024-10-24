@@ -99,6 +99,7 @@ public class FilmService {
         return filmDto; // Возвращаем фильм с установленными жанрами
     }
 
+    // Метод для добавления жанров в таблицу с жанрами фильма
     private void addGenresToGenresFilm(Long filmId, List<Genre> genresList) {
         if (genresList != null) {
             // Если жанры существуют, добавляем их в хранилище связей жанров и фильмов
@@ -117,6 +118,7 @@ public class FilmService {
                 .orElseThrow(() -> new NotFoundException("Фильм с id: " + filmId + " не найден"));
     }
 
+    // Метод для добавления жанров к фильму
     private FilmDto addGenresToFilmDto(FilmDto filmDto) {
         List<Genre> filmGenresList = genresFilmDbStorage.getGenresByFilmId(filmDto.getId()).stream()
                 .map(GenresFilm::getGenre)
