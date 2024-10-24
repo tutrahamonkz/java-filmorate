@@ -16,6 +16,7 @@ import ru.yandex.practicum.filmorate.storage.film.genres.GenresFilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -103,7 +104,8 @@ public class FilmService {
     private void addGenresToGenresFilm(Long filmId, List<Genre> genresList) {
         if (genresList != null) {
             // Если жанры существуют, добавляем их в хранилище связей жанров и фильмов
-            genresList.forEach(genre -> genresFilmDbStorage.addGenreToFilm(filmId, genre.getId()));
+            Set<Genre> uniqueGenres = new LinkedHashSet<>(genresList);
+            uniqueGenres.forEach(genre -> genresFilmDbStorage.addGenreToFilm(filmId, genre.getId()));
         }
     }
 
