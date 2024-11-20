@@ -21,6 +21,7 @@ public class UserDbStorage extends BaseStorage<User> implements UserStorage {
             "VALUES (?, ?, ?, ?)";
     private static final String UPDATE_QUERY = "UPDATE USERS SET login = ?, email = ?, name = ?, birthday = ?" +
             " WHERE user_id = ?";
+    private static final String DELETE_QUERY = "DELETE FROM USERS WHERE USER_ID = ?";
 
     public UserDbStorage(JdbcTemplate jdbc, RowMapper<User> mapper) {
         super(jdbc, mapper, User.class);
@@ -73,5 +74,17 @@ public class UserDbStorage extends BaseStorage<User> implements UserStorage {
         );
         log.info("Обновлен пользователь с id: {}", user.getId()); // Логируем информацию об обновлении
         return user; // Возвращаем обновленного пользователя
+    }
+
+    // Метод для удаления пользователя
+    @Override
+    public boolean deleteUser(Long userId) {
+        log.info("Удаление пользователя: userId={}", userId); // Логируем удаление фильма
+        // Выполняем SQL-запрос на удаление записи о пользователе из БД
+        boolean result = delete(DELETE_QUERY, userId);
+        if (result) {
+            log.info("Пользователь успешно удален: userId={}", userId); // Логируем успешное удаление
+        }
+        return result; // Возвращаем результат операции удаления
     }
 }

@@ -20,6 +20,7 @@ public class FriendDbStorage extends BaseStorage<Friendship> {
     private static final String UPDATE_FRIEND_BY_ID = "UPDATE FRIENDSHIP SET ACCEPT = ? " +
             "WHERE USER_ID = ? AND FRIEND_ID = ?";
     private static final String DELETE_FRIEND = "DELETE FROM FRIENDSHIP WHERE USER_ID = ? AND FRIEND_ID = ?";
+    private static final String DELETE_FRIENDS_BY_USER_ID = "DELETE FROM FRIENDSHIP WHERE USER_ID = ? OR FRIEND_ID = ?";
     private static final String FIND_MUTUAL_FRIENDS = "SELECT * FROM FRIENDSHIP WHERE USER_ID = ? AND FRIEND_ID " +
             "IN (SELECT FRIEND_ID FROM FRIENDSHIP WHERE USER_ID = ?)";
 
@@ -70,6 +71,17 @@ public class FriendDbStorage extends BaseStorage<Friendship> {
             log.info("Друг успешно удален: userId={}, friendId={}", userId, friendId); // Логируем успешное удаление
         }
         return result; // Возвращаем результат операции удаления
+    }
+
+    // Метод для удаления друзей по id пользователя
+    public boolean deleteFriendsByUserId(Long userId) {
+        log.info("Удаление друзей для userId={}", userId); // Логируем удаление друзей
+        // Выполняем SQL-запрос на удаление записей о дружбе из БД
+        boolean result = delete(DELETE_FRIENDS_BY_USER_ID, userId, userId);
+        if (result) {
+            log.info("Записи о дружбе пользователя: id={}, успешно удалены", userId); // Логируем успешное удаление
+        }
+        return false;
     }
 
     // Метод для обновления статуса дружбы (принят/не принят)

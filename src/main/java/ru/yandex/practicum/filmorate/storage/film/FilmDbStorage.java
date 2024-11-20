@@ -28,6 +28,7 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             "GROUP BY f.FILM_ID " +
             "ORDER BY COUNT(l.USER_ID) DESC " +
             "LIMIT ?;";
+    private static final String DELETE_QUERY = "DELETE FROM FILMS WHERE FILM_ID = ?";
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper, Film.class);
@@ -85,5 +86,17 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
         // Логируем запрос на получение популярных фильмов
         log.info("Запрос на получение {} самых популярных фильмов.", count);
         return findMany(FIND_POPULAR_LIMIT_QUERY, count);
+    }
+
+    // Метод для удаления фильма
+    @Override
+    public boolean deleteFilm(Long filmId) {
+        log.info("Удаление фильма: filmId={}", filmId); // Логируем удаление фильма
+        // Выполняем SQL-запрос на удаление записи о фильме из БД
+        boolean result = delete(DELETE_QUERY, filmId);
+        if (result) {
+            log.info("Фильм успешно удален: filmId={}", filmId); // Логируем успешное удаление
+        }
+        return result; // Возвращаем результат операции удаления
     }
 }

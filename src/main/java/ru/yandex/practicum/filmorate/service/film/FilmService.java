@@ -64,6 +64,17 @@ public class FilmService {
         return FilmMapper.toFilmDto(updateFilm); // Возвращаем обновленный фильм
     }
 
+    // Метод для удаления фильма по id
+    public void deleteFilm(Long filmId) {
+        try {
+            likeDbStorage.deleteLikeByFilmId(filmId); // Удаляем лайки к фильму
+        } catch (InternalServerException ignore) {}
+        try {
+            genresFilmDbStorage.deleteGenresByFilmId(filmId); // Удаляем жанры фильма
+        } catch (InternalServerException ignore) {}
+        filmStorage.deleteFilm(filmId); // Удаляем фильм
+    }
+
     // Метод для добавления лайка к фильму от пользователя
     public FilmDto addLike(Long filmId, Long userId) {
         validateUserExists(userId);
