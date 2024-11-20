@@ -51,4 +51,6 @@ public class Film {
     // рейтинг MPA фильма
     @Valid
     private Mpa mpa;
+
+    private List<Director> directors;
 }

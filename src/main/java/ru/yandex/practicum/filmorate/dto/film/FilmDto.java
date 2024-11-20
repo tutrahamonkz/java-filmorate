@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.dto.film;
 
 import lombok.Builder;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
@@ -20,4 +21,5 @@ public class FilmDto {
     private Set<Long> likes;
     private List<Genre> genres;
     private Mpa mpa;
+    private List<Director> directors;
 }
