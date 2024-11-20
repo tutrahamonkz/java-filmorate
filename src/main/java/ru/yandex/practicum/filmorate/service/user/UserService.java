@@ -67,7 +67,7 @@ public class UserService {
         findUserById(friendId); // Проверяем, существует ли пользователь с friendId.
         // Получаем список друзей для пользователя userId и friendId.
         List<Friendship> userList = friendDbStorage.findAllFriends(userId);
-        List<Friendship> friendList = friendDbStorage.findAllFriends(userId);
+        List<Friendship> friendList = friendDbStorage.findAllFriends(friendId);
         // Проверяем, есть ли уже дружба между пользователями.
         // Если да, выбрасываем исключение InternalServerException.
         if (checkFriendshipExists(userList, userId, friendId)) {
