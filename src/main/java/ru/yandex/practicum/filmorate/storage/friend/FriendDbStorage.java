@@ -80,6 +80,7 @@ public class FriendDbStorage extends BaseStorage<Friendship> {
         boolean result = delete(DELETE_FRIENDS_BY_USER_ID, userId, userId);
         if (result) {
             log.info("Записи о дружбе пользователя: id={}, успешно удалены", userId); // Логируем успешное удаление
+            return true;
         }
         return false;
     }

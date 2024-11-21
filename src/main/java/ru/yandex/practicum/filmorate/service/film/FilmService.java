@@ -69,10 +69,12 @@ public class FilmService {
         try {
             likeDbStorage.deleteLikeByFilmId(filmId); // Удаляем лайки к фильму
         } catch (InternalServerException ignore) {
+            // сюда дописать логер действий пользователя
         }
         try {
             genresFilmDbStorage.deleteGenresByFilmId(filmId); // Удаляем жанры фильма
         } catch (InternalServerException ignore) {
+            // сюда дописать логер действий пользователя
         }
         filmStorage.deleteFilm(filmId); // Удаляем фильм
     }

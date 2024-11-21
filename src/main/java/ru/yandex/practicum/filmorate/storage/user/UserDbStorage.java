@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.BaseStorage;
 
@@ -84,7 +85,9 @@ public class UserDbStorage extends BaseStorage<User> implements UserStorage {
         boolean result = delete(DELETE_QUERY, userId);
         if (result) {
             log.info("Пользователь успешно удален: userId={}", userId); // Логируем успешное удаление
+            return true;
+        } else {
+            throw new InternalServerException("Не удалось удалить пользователя с id " + userId);
         }
-        return result; // Возвращаем результат операции удаления
     }
 }

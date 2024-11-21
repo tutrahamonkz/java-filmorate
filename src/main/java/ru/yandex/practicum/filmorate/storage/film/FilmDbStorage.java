@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.BaseStorage;
 
@@ -96,7 +97,9 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
         boolean result = delete(DELETE_QUERY, filmId);
         if (result) {
             log.info("Фильм успешно удален: filmId={}", filmId); // Логируем успешное удаление
+            return true;
+        } else {
+            throw new InternalServerException("Не удалось удалить фильм с id: " + filmId);
         }
-        return result; // Возвращаем результат операции удаления
     }
 }
