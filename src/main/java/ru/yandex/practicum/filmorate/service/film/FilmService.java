@@ -66,15 +66,11 @@ public class FilmService {
 
     // Метод для удаления фильма по id
     public void deleteFilm(Long filmId) {
-        try {
+        if (!likeDbStorage.getLikesByFilmId(filmId).isEmpty()) { // Есть ли лайки у фильма
             likeDbStorage.deleteLikeByFilmId(filmId); // Удаляем лайки к фильму
-        } catch (InternalServerException ignore) {
-            // сюда дописать логер действий пользователя
         }
-        try {
+        if (!genresFilmDbStorage.getGenresByFilmId(filmId).isEmpty()) { // Есть ли жанры у фильма
             genresFilmDbStorage.deleteGenresByFilmId(filmId); // Удаляем жанры фильма
-        } catch (InternalServerException ignore) {
-            // сюда дописать логер действий пользователя
         }
         filmStorage.deleteFilm(filmId); // Удаляем фильм
     }

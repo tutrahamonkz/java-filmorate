@@ -171,15 +171,11 @@ public class UserService {
 
     // Метод для удаления пользователя
     public void deleteUser(Long userId) {
-        try {
+        if (!friendDbStorage.findAllFriends(userId).isEmpty()) { // Есть ли друзья у пользователя
             friendDbStorage.deleteFriendsByUserId(userId); // Удаляем записи о пользователе из друзей
-        } catch (InternalServerException ignore) {
-            // сюда дописать логер действий пользователя
         }
-        try {
+        if (!likeDbStorage.getLikesByUserId(userId).isEmpty()) { // Есть ли лайки у пользователя
             likeDbStorage.deleteLikeByUserId(userId); // Удаляем записи о пользователе из лайков
-        } catch (InternalServerException ignore) {
-            // сюда дописать логер действий пользователя
         }
         userStorage.deleteUser(userId); // Удаляем пользователя
     }
