@@ -173,10 +173,12 @@ public class UserService {
     public void deleteUser(Long userId) {
         try {
             friendDbStorage.deleteFriendsByUserId(userId); // Удаляем записи о пользователе из друзей
-        } catch (InternalServerException ignore) {}
+        } catch (InternalServerException ignore) {
+        }
         try {
             likeDbStorage.deleteLikeByUserId(userId); // Удаляем записи о пользователе из лайков
-        } catch (InternalServerException ignore) {}
+        } catch (InternalServerException ignore) {
+        }
         userStorage.deleteUser(userId); // Удаляем пользователя
     }
 }
