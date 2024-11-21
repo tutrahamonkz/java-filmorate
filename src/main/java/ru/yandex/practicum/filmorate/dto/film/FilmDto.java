@@ -22,4 +22,5 @@ public class FilmDto {
     private List<Genre> genres;
     private Mpa mpa;
     private List<Director> directors;
+
 }

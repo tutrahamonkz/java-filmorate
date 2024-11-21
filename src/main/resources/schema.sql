@@ -44,3 +44,15 @@ CREATE TABLE IF NOT EXISTS genres_film (
   film_id INTEGER REFERENCES films(film_id),
   genre_id INTEGER REFERENCES genre_type(genre_id)
 );
+
+CREATE TABLE IF NOT EXISTS directors (
+  dir_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  dir_name VARCHAR(100)
+);
+
+CREATE TABLE IF NOT EXISTS directors_films (
+  dir_id INTEGER REFERENCES directors(dir_id),
+  film_id INTEGER REFERENCES films(film_id),
+  constraint pk_dir_film primary key (dir_id, film_id)
+);
+

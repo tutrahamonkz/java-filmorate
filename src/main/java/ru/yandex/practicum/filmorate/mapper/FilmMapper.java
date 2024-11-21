@@ -40,6 +40,7 @@ public class FilmMapper {
                 .releaseDate(film.getReleaseDate())
                 .mpa(film.getMpa())
                 .genres(film.getGenres())
+                .directors(film.getDirectors())
                 .build();
     }
 }
