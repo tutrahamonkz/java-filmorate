@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service.film;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.film.FilmDto;
@@ -7,10 +8,13 @@ import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.GenresFilm;
 import ru.yandex.practicum.filmorate.model.Like;
+import ru.yandex.practicum.filmorate.storage.director.DirectorDBStorage;
+import ru.yandex.practicum.filmorate.storage.director.DirectorFilmDBStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.genres.GenresFilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
@@ -20,6 +24,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @Service // Аннотация указывает, что данный класс является сервисом и может быть использован в контексте Spring
 public class FilmService {
 
@@ -27,15 +32,21 @@ public class FilmService {
     private final UserStorage userStorage; // Хранилище пользователей для проверки существования пользователей
     private final LikeDbStorage likeDbStorage; // Хранилище для работы с лайками
     private final GenresFilmDbStorage genresFilmDbStorage; // Хранилище для связи жанров и фильмов
+    private final DirectorDBStorage directorDBStorage;
+    private final DirectorFilmDBStorage directorFilmDBStorage;
 
     // Конструктор, принимающий FilmStorage, UserStorage и другие хранилища в качестве параметров
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
                        @Qualifier("userDbStorage") UserStorage userStorage,
-                       LikeDbStorage likeDbStorage, GenresFilmDbStorage genresFilmDbStorage) {
+                       LikeDbStorage likeDbStorage, GenresFilmDbStorage genresFilmDbStorage,
+                       DirectorDBStorage directorDBStorage,
+                       DirectorFilmDBStorage directorFilmDBStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.likeDbStorage = likeDbStorage;
         this.genresFilmDbStorage = genresFilmDbStorage;
+        this.directorDBStorage = directorDBStorage;
+        this.directorFilmDBStorage = directorFilmDBStorage;
     }
 
     // Метод для получения всех фильмов из хранилища
@@ -49,8 +60,23 @@ public class FilmService {
     // Метод для создания нового фильма
     public FilmDto createFilm(Film film) {
         Film newFilm = filmStorage.createFilm(film); // Создаем новый фильм в хранилище
+        //извлечение списка id режиссеров и добавление из базы имени
+        addDirectorsToFilm(newFilm);
         addGenresToGenresFilm(newFilm.getId(), newFilm.getGenres()); // Добавляем жанры фильма в таблицу
         return FilmMapper.toFilmDto(newFilm); // Возвращаем созданный фильм
+    }
+
+    public void addDirectorsToFilm(Film film) { //добавление режиссеров к фильму
+        if (!film.getDirectors().isEmpty()) {
+            List<Director> directors = film.getDirectors();
+            directors = directorDBStorage.getListDirector(directors);
+            if (directors.isEmpty()) {
+                log.error("Введен несуществующий id режиссера");
+                throw new NotFoundException("Режиссер с таким id не существует");
+            }
+            film.setDirectors(directors);
+            directorFilmDBStorage.createPost(film); //установка данных в таблицу соответствия фильм/режиссер
+        }
     }
 
     // Метод для обновления существующего фильма
@@ -61,6 +87,8 @@ public class FilmService {
         // Получаем фильм по ID и обновляем его поля, если он существует
         Film updateFilm = FilmMapper.updateFilmFields(getFilmById(request.getId()), request);
         updateFilm = filmStorage.updateFilm(updateFilm); // Обновляем фильм в хранилище
+        addDirectorsToFilm(updateFilm);
+
         return FilmMapper.toFilmDto(updateFilm); // Возвращаем обновленный фильм
     }
 
@@ -97,6 +125,9 @@ public class FilmService {
         FilmDto filmDto = FilmMapper.toFilmDto(getFilmById(id));
         // Добавляем список жанров к фильму
         addGenresToFilmDto(filmDto);
+        //поиск режиссеров по id фильма
+        List<Director> directors = directorFilmDBStorage.getDirectorsForFilm(id);
+        filmDto.setDirectors(directors);
         return filmDto; // Возвращаем фильм с установленными жанрами
     }
 

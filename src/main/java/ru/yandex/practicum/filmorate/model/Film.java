@@ -52,6 +52,6 @@ public class Film {
     @Valid
     private Mpa mpa;
 
-    private List<@Valid Director> directors;
+    private List<Director> directors;
 
 }

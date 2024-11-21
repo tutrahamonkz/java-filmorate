@@ -65,4 +65,6 @@ public class BaseStorage<T> {
         int rowsDeleted = jdbc.update(query, params); // Выполняем обновление и получаем количество удаленных строк
         return rowsDeleted > 0; // Возвращаем true, если строки были удалены
     }
+
+
 }

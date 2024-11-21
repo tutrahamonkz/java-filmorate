@@ -51,8 +51,8 @@ CREATE TABLE IF NOT EXISTS directors (
 );
 
 CREATE TABLE IF NOT EXISTS directors_films (
-  dir_id INTEGER REFERENCES directors(dir_id),
   film_id INTEGER REFERENCES films(film_id),
-  constraint pk_dir_film primary key (dir_id, film_id)
+  dir_id INTEGER REFERENCES directors(dir_id),
+constraint pk_dir_film primary key (dir_id, film_id)
 );
 
