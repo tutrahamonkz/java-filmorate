@@ -63,4 +63,10 @@ public class FilmController {
     public FilmDto getWithGenre(@PathVariable Long id) {
         return filmService.getWithGenre(id);
     }
+
+    // Обрабатывает DELETE-запросы для удаления фильма
+    @DeleteMapping("/{id}")
+    public void deleteFilm(@PathVariable Long id) {
+        filmService.deleteFilm(id);
+    }
 }
