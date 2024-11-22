@@ -67,4 +67,10 @@ public class UserController {
         // Возвращает коллекцию общих друзей между двумя пользователями
         return userService.listOfMutualFriends(id, otherId);
     }
+
+    // Обрабатывает DELETE-запросы для удаления пользователя
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+    }
 }

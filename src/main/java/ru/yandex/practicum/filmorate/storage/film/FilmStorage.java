@@ -22,4 +22,7 @@ public interface FilmStorage {
 
     // Метод для получения самых популярных фильмов по количеству лайков
     List<Film> getMostPopularByNumberOfLikes(Long count);
+
+    // Метод для удаления фильма
+    boolean deleteFilm(Long filmId);
 }

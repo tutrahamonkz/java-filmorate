@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.friend.FriendDbStorage;
+import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
@@ -21,11 +22,14 @@ public class UserService {
     private final UserStorage userStorage; // Хранение ссылки на объект UserStorage для работы с данными о пользователях
     // Хранение ссылки на объект FriendDbStorage для работы с дружескими отношениями
     private final FriendDbStorage friendDbStorage;
+    private final LikeDbStorage likeDbStorage;
 
     // Конструктор, принимающий UserStorage в качестве параметра
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendDbStorage friendDbStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendDbStorage friendDbStorage,
+                       LikeDbStorage likeDbStorage) {
         this.userStorage = userStorage;
         this.friendDbStorage = friendDbStorage;
+        this.likeDbStorage = likeDbStorage;
     }
 
     // Метод для получения всех пользователей из хранилища
@@ -63,7 +67,7 @@ public class UserService {
         findUserById(friendId); // Проверяем, существует ли пользователь с friendId.
         // Получаем список друзей для пользователя userId и friendId.
         List<Friendship> userList = friendDbStorage.findAllFriends(userId);
-        List<Friendship> friendList = friendDbStorage.findAllFriends(userId);
+        List<Friendship> friendList = friendDbStorage.findAllFriends(friendId);
         // Проверяем, есть ли уже дружба между пользователями.
         // Если да, выбрасываем исключение InternalServerException.
         if (checkFriendshipExists(userList, userId, friendId)) {
@@ -89,7 +93,7 @@ public class UserService {
         findUserById(friendId); // Проверяем, существует ли пользователь с friendId.
         // Получаем список друзей для пользователя userId и friendId.
         List<Friendship> userList = friendDbStorage.findAllFriends(userId);
-        List<Friendship> friendList = friendDbStorage.findAllFriends(userId);
+        List<Friendship> friendList = friendDbStorage.findAllFriends(friendId);
         // Проверяем, есть ли уже дружба между пользователями.
         if (!checkFriendshipExists(userList, userId, friendId)) {
             return response;
@@ -163,5 +167,16 @@ public class UserService {
                 .flatMap(Optional::stream)
                 .map(UserMapper::mapToUserDto)
                 .toList();
+    }
+
+    // Метод для удаления пользователя
+    public void deleteUser(Long userId) {
+        if (!friendDbStorage.findAllFriends(userId).isEmpty()) { // Есть ли друзья у пользователя
+            friendDbStorage.deleteFriendsByUserId(userId); // Удаляем записи о пользователе из друзей
+        }
+        if (!likeDbStorage.getLikesByUserId(userId).isEmpty()) { // Есть ли лайки у пользователя
+            likeDbStorage.deleteLikeByUserId(userId); // Удаляем записи о пользователе из лайков
+        }
+        userStorage.deleteUser(userId); // Удаляем пользователя
     }
 }

@@ -64,6 +64,17 @@ public class FilmService {
         return FilmMapper.toFilmDto(updateFilm); // Возвращаем обновленный фильм
     }
 
+    // Метод для удаления фильма по id
+    public void deleteFilm(Long filmId) {
+        if (!likeDbStorage.getLikesByFilmId(filmId).isEmpty()) { // Есть ли лайки у фильма
+            likeDbStorage.deleteLikeByFilmId(filmId); // Удаляем лайки к фильму
+        }
+        if (!genresFilmDbStorage.getGenresByFilmId(filmId).isEmpty()) { // Есть ли жанры у фильма
+            genresFilmDbStorage.deleteGenresByFilmId(filmId); // Удаляем жанры фильма
+        }
+        filmStorage.deleteFilm(filmId); // Удаляем фильм
+    }
+
     // Метод для добавления лайка к фильму от пользователя
     public FilmDto addLike(Long filmId, Long userId) {
         validateUserExists(userId);

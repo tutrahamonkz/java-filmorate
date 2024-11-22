@@ -19,4 +19,6 @@ public interface UserStorage {
 
     // Метод для обновления информации о существующем пользователе
     User userUpdate(User user);
+
+    boolean deleteUser(Long userId);
 }
