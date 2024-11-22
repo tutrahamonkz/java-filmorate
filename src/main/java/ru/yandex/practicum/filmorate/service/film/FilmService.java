@@ -99,6 +99,7 @@ public class FilmService {
         if (!genresFilmDbStorage.getGenresByFilmId(filmId).isEmpty()) { // Есть ли жанры у фильма
             genresFilmDbStorage.deleteGenresByFilmId(filmId); // Удаляем жанры фильма
         }
+        //добавить удаление из базы фильм/режиссер
         filmStorage.deleteFilm(filmId); // Удаляем фильм
     }
 
