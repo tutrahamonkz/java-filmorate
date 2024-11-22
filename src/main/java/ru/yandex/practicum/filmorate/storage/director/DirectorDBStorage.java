@@ -51,10 +51,12 @@ public class DirectorDBStorage extends BaseStorage<Director> {
                 .map(Director::getId)
                 .toList();
         Object[] params = listLong.toArray(new Object[0]);
+        log.info("Поиск режиссеров с id {}", params);
         return findMany(listDirectorQuery, params);
     }
 
     public Optional<Director> getDirectorById(long id) {
+        log.info("Поиск директора по id {}", id);
         return findOne(DIRECTOR_QUERY, id);
     }
 
@@ -62,13 +64,14 @@ public class DirectorDBStorage extends BaseStorage<Director> {
         update(UPDATE_QUERY,
                 director.getName(),
                 director.getId());
-
+        log.info("Обновлены данные о режиссере с id {}", director.getId());
     }
 
     public void deleteDirector(long id) {
         update(
                 DELETE_QUERY,
                 id);
+        log.info("Удалены данные о режиссере с id {}", id);
     }
 
 }

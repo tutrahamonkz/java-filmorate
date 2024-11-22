@@ -67,7 +67,7 @@ public class FilmService {
     }
 
     public void addDirectorsToFilm(Film film) { //добавление режиссеров к фильму
-        if (!film.getDirectors().isEmpty()) {
+        if (film.getDirectors() !=null &&!film.getDirectors().isEmpty()) {
             List<Director> directors = film.getDirectors();
             directors = directorDBStorage.getListDirector(directors);
             if (directors.isEmpty()) {
@@ -87,8 +87,7 @@ public class FilmService {
         // Получаем фильм по ID и обновляем его поля, если он существует
         Film updateFilm = FilmMapper.updateFilmFields(getFilmById(request.getId()), request);
         updateFilm = filmStorage.updateFilm(updateFilm); // Обновляем фильм в хранилище
-        addDirectorsToFilm(updateFilm);
-
+        addDirectorsToFilm(updateFilm); //устанавливаем режиссеров
         return FilmMapper.toFilmDto(updateFilm); // Возвращаем обновленный фильм
     }
 
