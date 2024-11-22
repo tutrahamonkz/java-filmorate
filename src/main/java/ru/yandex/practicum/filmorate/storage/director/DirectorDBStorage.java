@@ -56,7 +56,7 @@ public class DirectorDBStorage extends BaseStorage<Director> {
     }
 
     public Optional<Director> getDirectorById(long id) {
-        log.info("Поиск директора по id {}", id);
+        log.info("Поиск режиссера по id {}", id);
         return findOne(DIRECTOR_QUERY, id);
     }
 

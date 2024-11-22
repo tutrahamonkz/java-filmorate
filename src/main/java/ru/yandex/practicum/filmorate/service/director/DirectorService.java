@@ -18,6 +18,7 @@ import java.util.List;
 public class DirectorService {
     private final DirectorDBStorage directorDBStorage;
 
+
     public DirectorDto createDirector(Director director) { //создание режиссера
         if (director.getName().matches("^\s*$")) {
             log.error("Имя директора должно быть указано");

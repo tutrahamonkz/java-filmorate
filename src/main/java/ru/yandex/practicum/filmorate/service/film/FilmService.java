@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
@@ -13,6 +14,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.GenresFilm;
 import ru.yandex.practicum.filmorate.model.Like;
+import ru.yandex.practicum.filmorate.service.director.DirectorService;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDBStorage;
 import ru.yandex.practicum.filmorate.storage.director.DirectorFilmDBStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -34,28 +36,35 @@ public class FilmService {
     private final GenresFilmDbStorage genresFilmDbStorage; // Хранилище для связи жанров и фильмов
     private final DirectorDBStorage directorDBStorage;
     private final DirectorFilmDBStorage directorFilmDBStorage;
+    private final DirectorService directorService;
 
     // Конструктор, принимающий FilmStorage, UserStorage и другие хранилища в качестве параметров
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
                        @Qualifier("userDbStorage") UserStorage userStorage,
                        LikeDbStorage likeDbStorage, GenresFilmDbStorage genresFilmDbStorage,
                        DirectorDBStorage directorDBStorage,
-                       DirectorFilmDBStorage directorFilmDBStorage) {
+                       DirectorFilmDBStorage directorFilmDBStorage,
+                       DirectorService directorService) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.likeDbStorage = likeDbStorage;
         this.genresFilmDbStorage = genresFilmDbStorage;
         this.directorDBStorage = directorDBStorage;
         this.directorFilmDBStorage = directorFilmDBStorage;
+        this.directorService = directorService;
     }
 
     // Метод для получения всех фильмов из хранилища
-    public List<FilmDto> getFilms() {
+    /*public List<FilmDto> getFilms() {
         return filmStorage.getFilms().stream()
                 .map(FilmMapper::toFilmDto)
                 .map(this::addGenresToFilmDto)
                 .toList(); // Возвращаем список всех фильмов
+    }*/
+    public List<FilmDto> getFilms() {
+        return listFilmToDto(filmStorage.getFilms());// Возвращаем список всех фильмов
     }
+
 
     // Метод для создания нового фильма
     public FilmDto createFilm(Film film) {
@@ -66,8 +75,8 @@ public class FilmService {
         return FilmMapper.toFilmDto(newFilm); // Возвращаем созданный фильм
     }
 
-    public void addDirectorsToFilm(Film film) { //добавление режиссеров к фильму
-        if (film.getDirectors() !=null &&!film.getDirectors().isEmpty()) {
+    public Film addDirectorsToFilm(Film film) { //добавление режиссеров к фильму по списку id для нового фильма
+        if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
             List<Director> directors = film.getDirectors();
             directors = directorDBStorage.getListDirector(directors);
             if (directors.isEmpty()) {
@@ -76,6 +85,12 @@ public class FilmService {
             }
             film.setDirectors(directors);
             directorFilmDBStorage.createPost(film); //установка данных в таблицу соответствия фильм/режиссер
+            return film;
+
+        } else { //для фильма у которого нет номеров id режиссеров
+            film.setDirectors(directorFilmDBStorage.getDirectorsForFilm(film.getId())); ///ищем список режиссеров для фильма
+            return film;
+
         }
     }
 
@@ -122,7 +137,7 @@ public class FilmService {
     }
 
     // Метод для получения самых популярных фильмов по количеству лайков
-    public List<FilmDto> getMostPopularByNumberOfLikes(Long count) {
+    public List<FilmDto> getMostPopularByNumberOfLikes(Long count) { //проверить нужны ли режиссеры
         // Возвращаем список самых популярных фильмов по количеству лайков
         return filmStorage.getMostPopularByNumberOfLikes(count).stream()
                 .map(FilmMapper::toFilmDto)
@@ -169,5 +184,25 @@ public class FilmService {
                 .toList();
         filmDto.setGenres(filmGenresList); // Устанавливаем полученные жанры для фильма
         return filmDto;
+    }
+
+    public List<FilmDto> getSortedFilms(Long id, String sortBy) {
+        directorService.checkDirectorById(id);
+        return switch (sortBy) {
+            case "year" -> listFilmToDto(directorFilmDBStorage.getSortedFilmsByYear(id));
+            case "likes" ->listFilmToDto(directorFilmDBStorage.getSortedFilmsByLikes(id));
+            default -> {
+                log.error("Некорректный параметр запроса " + sortBy);
+                throw new BadRequestException("Некорректный параметр запроса " + sortBy);
+            }
+        };
+    }
+
+    public List<FilmDto> listFilmToDto(List<Film> list) {
+        return list.stream()
+                .map(this::addDirectorsToFilm)
+                .map(FilmMapper::toFilmDto)
+                .map(this::addGenresToFilmDto)
+                .toList();
     }
 }
