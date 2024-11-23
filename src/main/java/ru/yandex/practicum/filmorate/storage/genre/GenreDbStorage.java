@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.BaseStorage;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,4 +35,16 @@ public class GenreDbStorage extends BaseStorage<Genre> {
         log.info("Запрос жанра с ID: {}", id); // Логируем запрос на получение жанра по ID
         return findOne(FIND_BY_ID_QUERY, id); // Выполняем SQL-запрос и возвращаем результат в виде Optional
     }
+
+    public List<Genre> getListGenre(List<Genre> list) {
+        String placeholders = String.join(",", Collections.nCopies(list.size(), "?"));
+        String listGenreQuery = "SELECT genre_id, genre_name FROM genre_type WHERE genre_id IN (" + placeholders + ")";
+        List<Long> listLong = list.stream()
+                .map(Genre::getId)
+                .toList();
+        Object[] params = listLong.toArray(new Object[0]);
+        return findMany(listGenreQuery, params);
+    }
+
+
 }

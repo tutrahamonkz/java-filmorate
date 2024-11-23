@@ -53,7 +53,7 @@ public class DirectorService {
         }
     }
 
-    public void deleteDirector (long id) { //удаление директора
+    public void deleteDirector(long id) { //удаление директора
         checkDirectorById(id);
         directorDBStorage.deleteDirector(id);
     }

@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,6 +42,7 @@ public class DirectorController {
     public DirectorDto updateDirector(@RequestBody Director director) {
         return directorService.updateDirector(director);
     }
+
     @DeleteMapping("/{id}")
     public void deleteDirector(@PathVariable long id) {
         directorService.deleteDirector(id);
