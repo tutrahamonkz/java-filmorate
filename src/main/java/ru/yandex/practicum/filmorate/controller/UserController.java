@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.model.User;
@@ -72,5 +73,11 @@ public class UserController {
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
+    }
+
+    // Обрабатывает Get-запросы для получения списка рекомендаций по фильмам.
+    @GetMapping("{id}/recommendations")
+    public List<FilmDto> recommendationsFilm(@PathVariable Long id) {
+        return userService.getRecommendFilms(id);
     }
 }
