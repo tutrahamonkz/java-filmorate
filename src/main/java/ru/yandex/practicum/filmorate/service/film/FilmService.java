@@ -70,7 +70,6 @@ public class FilmService {
         //извлечение списка id режиссеров и добавление из базы имени
         addDirectorsToFilm(newFilm);
         addGenresToGenresFilm(newFilm.getId(), newFilm.getGenres()); // Добавляем жанры фильма в таблицу
-        setMpaToFilm(newFilm); ///установка mpa
         FilmDto filmDto = FilmMapper.toFilmDto(newFilm);
         setNameGenre(filmDto); //добавляем имена к жанрам, удаляем двойные жанры
         return filmDto; // Возвращаем созданный фильм
