@@ -17,6 +17,7 @@ public class GenreDbStorage extends BaseStorage<Genre> {
     // SQL-запросы для работы с таблицей GENRE_TYPE
     private static final String FIND_ALL_QUERY = "SELECT * FROM GENRE_TYPE";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM GENRE_TYPE WHERE GENRE_ID = ?";
+    private static final String LIST_GENRE_BY_ID_QUERY = "SELECT genre_id, genre_name FROM genre_type WHERE genre_id IN (%s)";
 
     public GenreDbStorage(JdbcTemplate jdbc, RowMapper<Genre> mapper) {
         super(jdbc, mapper, Genre.class);
@@ -38,7 +39,7 @@ public class GenreDbStorage extends BaseStorage<Genre> {
 
     public List<Genre> getListGenre(List<Genre> list) {
         String placeholders = String.join(",", Collections.nCopies(list.size(), "?"));
-        String listGenreQuery = "SELECT genre_id, genre_name FROM genre_type WHERE genre_id IN (" + placeholders + ")";
+        String listGenreQuery = String.format(LIST_GENRE_BY_ID_QUERY, placeholders);
         List<Long> listLong = list.stream()
                 .map(Genre::getId)
                 .toList();

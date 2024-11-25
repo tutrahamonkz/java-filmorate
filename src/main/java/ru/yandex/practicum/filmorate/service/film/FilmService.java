@@ -14,7 +14,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.GenresFilm;
 import ru.yandex.practicum.filmorate.model.Like;
-import ru.yandex.practicum.filmorate.service.director.DirectorService;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDBStorage;
 import ru.yandex.practicum.filmorate.storage.director.DirectorFilmDBStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -26,6 +26,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -38,7 +39,6 @@ public class FilmService {
     private final GenresFilmDbStorage genresFilmDbStorage; // Хранилище для связи жанров и фильмов
     private final DirectorDBStorage directorDBStorage;
     private final DirectorFilmDBStorage directorFilmDBStorage;
-    private final DirectorService directorService;
     private final MpaDbStorage mpaDbStorage;
     private final GenreDbStorage genreDbStorage;
 
@@ -48,7 +48,6 @@ public class FilmService {
                        LikeDbStorage likeDbStorage, GenresFilmDbStorage genresFilmDbStorage,
                        DirectorDBStorage directorDBStorage,
                        DirectorFilmDBStorage directorFilmDBStorage,
-                       DirectorService directorService,
                        MpaDbStorage mpaDbStorage,
                        GenreDbStorage genreDbStorage) {
         this.filmStorage = filmStorage;
@@ -57,7 +56,6 @@ public class FilmService {
         this.genresFilmDbStorage = genresFilmDbStorage;
         this.directorDBStorage = directorDBStorage;
         this.directorFilmDBStorage = directorFilmDBStorage;
-        this.directorService = directorService;
         this.mpaDbStorage = mpaDbStorage;
         this.genreDbStorage = genreDbStorage;
     }
@@ -72,6 +70,7 @@ public class FilmService {
         //извлечение списка id режиссеров и добавление из базы имени
         addDirectorsToFilm(newFilm);
         addGenresToGenresFilm(newFilm.getId(), newFilm.getGenres()); // Добавляем жанры фильма в таблицу
+        setMpaToFilm(newFilm); ///установка mpa
         FilmDto filmDto = FilmMapper.toFilmDto(newFilm);
         setNameGenre(filmDto); //добавляем имена к жанрам, удаляем двойные жанры
         return filmDto; // Возвращаем созданный фильм
@@ -139,7 +138,7 @@ public class FilmService {
         // Добавляем список жанров к фильму
         addGenresToFilmDto(filmDto);
         //поиск режиссеров по id фильма
-        List<Director> directors = directorFilmDBStorage.getDirectorsForFilm(id);
+        List<Director> directors = directorDBStorage.getDirectorsForFilm(id);
         filmDto.setDirectors(directors); //устанавливаем режиссеров
         return filmDto; // Возвращаем фильм с установленными жанрами
     }
@@ -174,10 +173,14 @@ public class FilmService {
     }
 
     public List<FilmDto> getSortedFilms(Long id, String sortBy) {
-        directorService.checkDirectorById(id);
+        Optional<Director> director = directorDBStorage.getDirectorById(id);
+        if (director.isEmpty()) {
+            log.error("Режиссер с id" + id + " не найден");
+            throw new NotFoundException("Режиссер с id " + id + " не найден");
+        }
         return switch (sortBy) {
-            case "year" -> listFilmToDto(directorFilmDBStorage.getSortedFilmsByYear(id));
-            case "likes" -> listFilmToDto(directorFilmDBStorage.getSortedFilmsByLikes(id));
+            case "year" -> listFilmToDto(filmStorage.getSortedFilmsByYear(id));
+            case "likes" -> listFilmToDto(filmStorage.getSortedFilmsByLikes(id));
             default -> {
                 log.error("Некорректный параметр запроса " + sortBy);
                 throw new BadRequestException("Некорректный параметр запроса " + sortBy);
@@ -188,11 +191,12 @@ public class FilmService {
     public void setMpaToFilm(Film film) {
         if (film.getMpa() != null) {
             Long mpaId = film.getMpa().getId();
-            if (mpaDbStorage.getMpaById(mpaId).isPresent()) {
-                film.setMpa(mpaDbStorage.getMpaById(mpaId).get());
-            } else {
+            Optional<Mpa> mpa = mpaDbStorage.getMpaById(mpaId);
+            if (mpa.isEmpty()) {
                 log.error("Введен несуществующий mpa");
                 throw new BadRequestException("mpa с таким id не существует");
+            } else {
+                film.setMpa(mpa.get());
             }
         }
     }
@@ -210,7 +214,7 @@ public class FilmService {
             return film;
 
         } else { //для фильма у которого нет номеров id режиссеров
-            film.setDirectors(directorFilmDBStorage.getDirectorsForFilm(film.getId())); ///ищем список режиссеров для фильма
+            film.setDirectors(directorDBStorage.getDirectorsForFilm(film.getId())); ///ищем список режиссеров для фильма
             return film;
 
         }

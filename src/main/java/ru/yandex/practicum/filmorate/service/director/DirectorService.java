@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDBStorage;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,31 +26,32 @@ public class DirectorService {
             throw new BadRequestException("Имя директора должно быть указано");
         }
         directorDBStorage.createDirector(director);
-        return DirectorMapper.todirectorDto(director);
+        return DirectorMapper.toDirectorDto(director);
     }
 
     public List<DirectorDto> getDirectors() { //список всех режиссеров
         return directorDBStorage.getDirectors().stream()
-                .map(DirectorMapper::todirectorDto)
+                .map(DirectorMapper::toDirectorDto)
                 .toList();
     }
 
     public DirectorDto getDirectorById(long id) { //поиск режиссера по id
-        checkDirectorById(id);
-        return DirectorMapper.todirectorDto(directorDBStorage.getDirectorById(id).get());
-
+        return DirectorMapper.toDirectorDto(checkDirectorById(id));
     }
 
     public DirectorDto updateDirector(Director director) { //обновление режиссера
         checkDirectorById(director.getId());
         directorDBStorage.updateDirector(director);
-        return DirectorMapper.todirectorDto(directorDBStorage.getDirectorById(director.getId()).get()); //вытаскиваем из базы обновленного режиссера
+        return DirectorMapper.toDirectorDto(directorDBStorage.getDirectorById(director.getId()).get()); //вытаскиваем из базы обновленного режиссера
     }
 
-    public void checkDirectorById(long id) { //проверка наличия режиссера в базе
-        if (directorDBStorage.getDirectorById(id).isEmpty()) {
+    public Director checkDirectorById(long id) { //проверка наличия режиссера в базе
+        Optional<Director> director = directorDBStorage.getDirectorById(id);
+        if (director.isEmpty()) {
             log.error("Пользователь ввел неверный id");
             throw new NotFoundException("Неверный id режиссера");
+        } else {
+            return director.get();
         }
     }
 
@@ -57,5 +59,4 @@ public class DirectorService {
         checkDirectorById(id);
         directorDBStorage.deleteDirector(id);
     }
-
 }

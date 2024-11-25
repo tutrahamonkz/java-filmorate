@@ -31,6 +31,28 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             "LIMIT ?;";
     private static final String DELETE_QUERY = "DELETE FROM FILMS WHERE FILM_ID = ?";
 
+    private static final String FILM_SORTED_BY_YEAR_QUERY =
+            "SELECT f.film_id, f.film_name, f.description, f.release_date, f.duration, f.mpa, mp.mpa_name " +
+                    " FROM directors_films df " +
+                    "JOIN films f " +
+                    "ON df.film_id = f.film_id " +
+                    "JOIN MPA_TYPE mp ON f.mpa = mp.mpa_id " +
+                    "WHERE df.dir_id = ? " +
+                    "ORDER BY f.release_date ASC";
+
+    private static final String FILM_SORTED_BY_LIKE_QUERY =
+            "SELECT film_id, film_name, description, release_date, duration, mpa, mpa_name " +
+                    "FROM( " +
+                    "SELECT f.film_id, f.film_name, f.description, f.release_date, f.duration, f.mpa, mp.mpa_name, COUNT(l.user_id) AS like_count " +
+                    "FROM directors_films df " +
+                    "JOIN films f ON df.film_id = f.film_id " +
+                    "JOIN MPA_TYPE mp ON f.mpa = mp.mpa_id " +
+                    "LEFT JOIN likes l ON f.film_id=l.film_id " +
+                    "WHERE df.dir_id = ? " +
+                    "GROUP BY f.film_id, f.film_name, f.description, f.release_date, f.duration, f.mpa, mp.mpa_name " +
+                    ") AS film_likes " +
+                    "ORDER BY like_count DESC";
+
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper, Film.class);
     }
@@ -77,7 +99,7 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
                 film.getDuration(),
                 film.getMpa().getId(),
                 film.getId()
-                );
+        );
         log.info("Фильм с id: {} успешно обновлён.", film.getId()); // Логируем успешное обновление
         return film; // Возвращаем обновленный фильм
     }
@@ -102,5 +124,15 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
         } else {
             throw new InternalServerException("Не удалось удалить фильм с id: " + filmId);
         }
+    }
+
+    public List<Film> getSortedFilmsByYear(Long id) {
+        log.info("Запрос на составление списка фильмов по годам для режиссера с id " + id);
+        return findMany(FILM_SORTED_BY_YEAR_QUERY, id);
+    }
+
+    public List<Film> getSortedFilmsByLikes(Long id) {
+        log.info("Запрос на составление списка фильмов по числу лайков для режиссера с id " + id);
+        return findMany(FILM_SORTED_BY_LIKE_QUERY, id);
     }
 }

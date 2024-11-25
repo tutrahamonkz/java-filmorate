@@ -19,6 +19,12 @@ public class DirectorDBStorage extends BaseStorage<Director> {
     private static final String DIRECTOR_QUERY = "SELECT dir_id, dir_name FROM directors WHERE dir_id = ?";
     private static final String UPDATE_QUERY = "UPDATE directors SET dir_name = ? WHERE dir_id = ?";
     private static final String DELETE_QUERY = "DELETE FROM directors WHERE dir_id = ?";
+    private static final String LIST_DIRECTORS_BY_ID_QUERY = "SELECT dir_id, dir_name FROM directors WHERE dir_id IN (%s)";
+    private static final String SEARCH_DIR_FOR_FILM_QUERY = "SELECT df.dir_id, d.dir_name " +
+            "FROM directors_films df " +
+            "JOIN directors d " +
+            "ON d.dir_id=df.dir_id  " +
+            "WHERE df.film_id = ?";
 
 
     public DirectorDBStorage(JdbcTemplate jdbc, RowMapper<Director> mapper) {
@@ -44,7 +50,7 @@ public class DirectorDBStorage extends BaseStorage<Director> {
 
     public List<Director> getListDirector(List<Director> list) {
         String placeholders = String.join(",", Collections.nCopies(list.size(), "?"));
-        String listDirectorQuery = "SELECT dir_id, dir_name FROM directors WHERE dir_id IN (" + placeholders + ")";
+        String listDirectorQuery = String.format(LIST_DIRECTORS_BY_ID_QUERY, placeholders);
         List<Long> listLong = list.stream()
                 .map(Director::getId)
                 .toList();
@@ -72,4 +78,8 @@ public class DirectorDBStorage extends BaseStorage<Director> {
         log.info("Удалены данные о режиссере с id {}", id);
     }
 
+    public List<Director> getDirectorsForFilm(Long id) {
+        log.info("Поиск режиссеров для фильма с id " + id);
+        return findMany(SEARCH_DIR_FOR_FILM_QUERY, id);
+    }
 }
