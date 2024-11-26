@@ -44,3 +44,12 @@ CREATE TABLE IF NOT EXISTS genres_film (
   film_id INTEGER REFERENCES films(film_id),
   genre_id INTEGER REFERENCES genre_type(genre_id)
 );
+
+CREATE TABLE event (
+event_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+user_id INTEGER REFERENCES users(user_id),
+timestamp TIMESTAMP NOT NULL,
+entity_id INTEGER NOT NULL,
+event_type VARCHAR(20) CHECK (event_type IN ('LIKE', 'REVIEW', 'FRIEND'));
+operation VARCHAR(20) CHECK (operation IN ('REMOVE', 'ADD', 'UPDATE'));
+)

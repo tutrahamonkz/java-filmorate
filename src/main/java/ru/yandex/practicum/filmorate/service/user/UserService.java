@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service.user;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.feed.FeedDto;
 import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
@@ -47,6 +48,7 @@ public class UserService {
 
     // Метод для создания нового пользователя
     public UserDto userCreate(User user) {
+
         // Создаем пользователя и преобразуем в UserDto
         return UserMapper.mapToUserDto(userStorage.userCreate(user));
     }
@@ -178,5 +180,9 @@ public class UserService {
             likeDbStorage.deleteLikeByUserId(userId); // Удаляем записи о пользователе из лайков
         }
         userStorage.deleteUser(userId); // Удаляем пользователя
+    }
+
+    public List<FeedDto> getUserFeed(Long id) {
+return null;
     }
 }
