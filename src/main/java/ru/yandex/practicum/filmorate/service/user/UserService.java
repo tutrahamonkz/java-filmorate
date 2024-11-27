@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service.user;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
@@ -9,6 +10,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.RecommendationService;
 import ru.yandex.practicum.filmorate.storage.friend.FriendDbStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -23,13 +25,15 @@ public class UserService {
     // Хранение ссылки на объект FriendDbStorage для работы с дружескими отношениями
     private final FriendDbStorage friendDbStorage;
     private final LikeDbStorage likeDbStorage;
+    private final RecommendationService recommendation;
 
     // Конструктор, принимающий UserStorage в качестве параметра
     public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendDbStorage friendDbStorage,
-                       LikeDbStorage likeDbStorage) {
+                       LikeDbStorage likeDbStorage, RecommendationService recommendation) {
         this.userStorage = userStorage;
         this.friendDbStorage = friendDbStorage;
         this.likeDbStorage = likeDbStorage;
+        this.recommendation = recommendation;
     }
 
     // Метод для получения всех пользователей из хранилища
@@ -178,5 +182,10 @@ public class UserService {
             likeDbStorage.deleteLikeByUserId(userId); // Удаляем записи о пользователе из лайков
         }
         userStorage.deleteUser(userId); // Удаляем пользователя
+    }
+
+    // Метод для получения рекомендаций по фильмам
+    public List<FilmDto> getRecommendFilms(Long userId) {
+        return recommendation.getRecommendFilms(userId);
     }
 }
