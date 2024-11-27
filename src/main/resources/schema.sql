@@ -44,3 +44,19 @@ CREATE TABLE IF NOT EXISTS genres_film (
   film_id INTEGER REFERENCES films(film_id),
   genre_id INTEGER REFERENCES genre_type(genre_id)
 );
+
+CREATE TABLE IF NOT EXISTS reviews (
+    review_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    film_id INTEGER NOT NULL REFERENCES films (film_id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
+    content VARCHAR NOT NULL,
+    is_positive BOOL NOT NULL,
+    CONSTRAINT unique_film_user UNIQUE (film_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS reviews_likes (
+    review_id INTEGER NOT NULL REFERENCES reviews (review_id),
+    user_id INTEGER NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
+    is_useful BOOL NOT NULL,
+    PRIMARY KEY (review_id, user_id)
+);
