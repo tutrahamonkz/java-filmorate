@@ -14,6 +14,7 @@ public class FriendRowMapper implements RowMapper<Friendship> {
     public Friendship mapRow(ResultSet rs, int rowNum) throws SQLException {
         // Создаем и возвращаем объект Friendship, заполняя его поля значениями из ResultSet
         return Friendship.builder()
+                .id(rs.getLong("friendship_id"))
                 .userId(rs.getLong("user_id"))
                 .friendId(rs.getLong("friend_id"))
                 .accept(rs.getBoolean("accept"))

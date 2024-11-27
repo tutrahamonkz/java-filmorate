@@ -5,15 +5,23 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.feed.FeedDto;
 import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
+import ru.yandex.practicum.filmorate.eventHanding.FeedEventSource;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.mapper.FeedMapper;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Friendship;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.event.FeedDbStorage;
 import ru.yandex.practicum.filmorate.storage.friend.FriendDbStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,13 +32,18 @@ public class UserService {
     // Хранение ссылки на объект FriendDbStorage для работы с дружескими отношениями
     private final FriendDbStorage friendDbStorage;
     private final LikeDbStorage likeDbStorage;
+    private final FeedDbStorage feedDbStorage;
+    private final FeedEventSource feedEventSource;
 
     // Конструктор, принимающий UserStorage в качестве параметра
     public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendDbStorage friendDbStorage,
-                       LikeDbStorage likeDbStorage) {
+                       LikeDbStorage likeDbStorage, FeedDbStorage feedDbStorage,
+                       FeedEventSource feedEventSource) {
         this.userStorage = userStorage;
         this.friendDbStorage = friendDbStorage;
         this.likeDbStorage = likeDbStorage;
+        this.feedDbStorage = feedDbStorage;
+        this.feedEventSource = feedEventSource;
     }
 
     // Метод для получения всех пользователей из хранилища
@@ -79,11 +92,22 @@ public class UserService {
         boolean accept = checkAndUpdateFriendshipStatus(userId, friendId, friendList, true);
         // Добавляем новую дружбу в базу данных и получаем объект Friendship.
         Friendship friendship = friendDbStorage.addFriend(userId, friendId, accept);
+
+        feedEventSource.notifyFeedListeners(
+                 Feed.builder()
+                .userId(userId)
+                .timestamp(Timestamp.from(Instant.now()))
+                .entityId(friendship.getId())
+                .eventType(EventType.FRIEND)
+                 .operation(Operation.ADD)
+                 .build());
+
+
         // Обновляем список друзей в ответе, добавляя нового друга.
         userList.add(friendship);
         response.setFriends(userList.stream()
-                        .map(Friendship::getFriendId)
-                        .toList()
+                .map(Friendship::getFriendId)
+                .toList()
         );
         return response; // Возвращаем обновленный объект UserDto с новым списком друзей.
     }
@@ -182,7 +206,4 @@ public class UserService {
         userStorage.deleteUser(userId); // Удаляем пользователя
     }
 
-    public List<FeedDto> getUserFeed(Long id) {
-return null;
-    }
 }

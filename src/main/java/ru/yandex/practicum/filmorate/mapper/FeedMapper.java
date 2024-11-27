@@ -10,6 +10,7 @@ public class FeedMapper {
     public static FeedDto mapToFeedDto(Feed feed) {
         return FeedDto.builder()
                 .eventId(feed.getEventId())
+                .userId(feed.getUserId())
                 .timestamp(feed.getTimestamp())
                 .entityId(feed.getEntityId())
                 .eventType(feed.getEventType())

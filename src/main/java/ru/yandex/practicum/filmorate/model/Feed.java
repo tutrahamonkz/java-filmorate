@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
 
@@ -8,7 +9,8 @@ import java.sql.Timestamp;
 @Data
 @Builder
 public class Feed {
-    private Long eventId; //id новости
+    @Builder.Default
+    private Long eventId=null; //id новости
     private Long userId; //id пользователя для которого собирается новость
     private Timestamp timestamp;
     private Long entityId; // идентификатор сущности, с которой произошло событие

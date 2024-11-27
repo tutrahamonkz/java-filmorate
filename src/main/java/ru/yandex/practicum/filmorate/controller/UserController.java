@@ -1,25 +1,29 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.feed.FeedDto;
 import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.feed.FeedService;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 
 import java.util.List;
 
 @RestController // Указывает, что этот класс является REST-контроллером
 @RequestMapping("/users") // Устанавливает базовый путь для всех методов контроллера
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
+    private final FeedService feedService;
 
-    public UserController(UserService userService) {
+    /*public UserController(UserService userService, FeedService feedService) {
         this.userService = userService;
-    }
+    }*/
 
     @GetMapping // Обрабатывает GET-запросы по пути "/users"
     public List<UserDto> findAll() {
@@ -79,6 +83,6 @@ public class UserController {
     @GetMapping("/{id}/feed")
     public List<FeedDto> getUserFeeds(@PathVariable Long id) {
         // Возвращает ленту новостей указанного пользователя
-        return userService.getUserFeed(id);
+        return feedService.getUserFeed(id);
     }
 }

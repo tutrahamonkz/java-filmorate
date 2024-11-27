@@ -7,11 +7,11 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS friendship (
+  friendship_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   user_id INTEGER REFERENCES users(user_id),
   friend_id INTEGER REFERENCES users(user_id),
-  accept boolean DEFAULT false,
-  constraint pk_viewing primary key (user_id, friend_id)
-);
+  accept boolean DEFAULT false
+  );
 
 
 CREATE TABLE IF NOT EXISTS mpa_type (
@@ -45,11 +45,11 @@ CREATE TABLE IF NOT EXISTS genres_film (
   genre_id INTEGER REFERENCES genre_type(genre_id)
 );
 
-CREATE TABLE event (
+CREATE TABLE IF NOT EXISTS events (
 event_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-user_id INTEGER REFERENCES users(user_id),
+user_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
 timestamp TIMESTAMP NOT NULL,
 entity_id INTEGER NOT NULL,
-event_type VARCHAR(20) CHECK (event_type IN ('LIKE', 'REVIEW', 'FRIEND'));
-operation VARCHAR(20) CHECK (operation IN ('REMOVE', 'ADD', 'UPDATE'));
-)
+event_type VARCHAR(20) CHECK (event_type IN ('LIKE', 'REVIEW', 'FRIEND')),
+operation VARCHAR(20) CHECK (operation IN ('REMOVE', 'ADD', 'UPDATE'))
+);
