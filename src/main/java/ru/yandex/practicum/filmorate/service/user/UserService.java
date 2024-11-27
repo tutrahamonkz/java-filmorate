@@ -33,21 +33,16 @@ public class UserService {
     private final UserStorage userStorage; // Хранение ссылки на объект UserStorage для работы с данными о пользователях
     // Хранение ссылки на объект FriendDbStorage для работы с дружескими отношениями
     private final FriendDbStorage friendDbStorage;
-    private final LikeDbStorage likeDbStorage;
-    private final FeedDbStorage feedDbStorage;
     private final FeedEventSource feedEventSource;
     private final RecommendationService recommendation;
 
     // Конструктор, принимающий UserStorage в качестве параметра
     public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendDbStorage friendDbStorage,
-                       LikeDbStorage likeDbStorage, RecommendationService recommendation) {
-                       LikeDbStorage likeDbStorage, FeedDbStorage feedDbStorage,
+                       RecommendationService recommendation,
                        FeedEventSource feedEventSource) {
         this.userStorage = userStorage;
         this.friendDbStorage = friendDbStorage;
-        this.likeDbStorage = likeDbStorage;
         this.recommendation = recommendation;
-        this.feedDbStorage = feedDbStorage;
         this.feedEventSource = feedEventSource;
     }
 
