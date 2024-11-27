@@ -71,6 +71,11 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .toList(); // Собираем результат в список и возвращаем его
     }
 
+    @Override
+    public List<Film> search(String query, List<String> by) {
+        return List.of();
+    }
+
     // Приватный метод для генерации следующего идентификатора фильма
     private long getNextId() {
         long currentMaxId = films.keySet()

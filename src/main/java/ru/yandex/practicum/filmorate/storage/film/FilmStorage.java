@@ -22,4 +22,6 @@ public interface FilmStorage {
 
     // Метод для получения самых популярных фильмов по количеству лайков
     List<Film> getMostPopularByNumberOfLikes(Long count);
+
+    List<Film> search(String query, List<String> by);
 }

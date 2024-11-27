@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 
 import java.util.Collection;
+import java.util.List;
 
 @RestController // Указывает, что этот класс является REST-контроллером
 @RequestMapping("/films") // Устанавливает базовый путь для всех методов контроллера
@@ -62,5 +63,13 @@ public class FilmController {
     @GetMapping("/{id}")
     public FilmDto getWithGenre(@PathVariable Long id) {
         return filmService.getWithGenre(id);
+    }
+
+    @GetMapping("/search")
+    public List<FilmDto> searchFilm(
+            @RequestParam(name = "query") String query,
+            @RequestParam(name = "by") List<String> by
+    ) {
+        return filmService.search(query, by);
     }
 }
