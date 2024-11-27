@@ -23,6 +23,12 @@ public interface FilmStorage {
     // Метод для получения самых популярных фильмов по количеству лайков
     List<Film> getMostPopularByNumberOfLikes(Long count);
 
+    //Метод для получения списка фильмов конкретного режиссера, отсортированного по годам
+    List<Film> getSortedFilmsByYear(Long id);
+
+    //Метод для получения списка фильмов конкретного режиссера, отсортированного лайкам
+    List<Film> getSortedFilmsByLikes(Long id);
+
     // Метод для удаления фильма
     boolean deleteFilm(Long filmId);
 }

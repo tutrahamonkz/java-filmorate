@@ -45,6 +45,17 @@ CREATE TABLE IF NOT EXISTS genres_film (
   genre_id INTEGER REFERENCES genre_type(genre_id)
 );
 
+CREATE TABLE IF NOT EXISTS directors (
+  dir_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  dir_name VARCHAR(100)
+);
+
+CREATE TABLE IF NOT EXISTS directors_films (
+  film_id INTEGER REFERENCES films(film_id) ON DELETE CASCADE,
+  dir_id INTEGER REFERENCES directors(dir_id) ON DELETE CASCADE,
+constraint pk_dir_film primary key (dir_id, film_id)
+);
+
 CREATE TABLE IF NOT EXISTS reviews (
     review_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     film_id INTEGER NOT NULL REFERENCES films (film_id) ON DELETE CASCADE,
