@@ -24,7 +24,7 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
     private static final String INSERT_QUERY = "INSERT INTO FILMS(film_name, description, release_date, duration, " +
             "mpa) VALUES (?, ?, ?, ?, ?)";
     private static final String UPDATE_QUERY = "UPDATE FILMS SET film_name = ?, description = ?, release_date = ?, " +
-            "duration = ? WHERE film_id = ?";
+            "duration = ?, mpa = ? WHERE film_id = ?"; //*mpa
     private static final String FIND_POPULAR_LIMIT_QUERY = "SELECT f.*, mp.MPA_NAME FROM FILMS f " +
             "LEFT JOIN LIKES l ON f.FILM_ID = l.FILM_ID " +
             "JOIN MPA_TYPE mp ON f.mpa = mp.MPA_ID " +
