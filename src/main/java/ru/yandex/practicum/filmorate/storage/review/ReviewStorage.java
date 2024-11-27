@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.storage.BaseStorage;
 import ru.yandex.practicum.filmorate.storage.mapper.ReviewRowMapper;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -50,7 +49,7 @@ public class ReviewStorage extends BaseStorage<Review> implements ReviewReposito
             "WHERE pos.review_id IN (?) ORDER BY useful DESC;";
 
     private static final String SQL_GET_ALL_REVIEWS_LIMIT = SQL_GET_REVIEW_BASE +
-            "ORDER BY useful DESC LIMIT :count;";
+            "ORDER BY useful DESC LIMIT ?";
 
     private static final String SQL_GET_REVIEW_BY_FILM_IDS_LIMIT = SQL_GET_REVIEW_BASE
             + "WHERE pos.film_id = ? ORDER BY useful DESC LIMIT ?";
@@ -92,8 +91,7 @@ public class ReviewStorage extends BaseStorage<Review> implements ReviewReposito
 
     @Override
     public List<Review> getAll(Integer count) {
-        Map<String, Object> params = Map.of("count", count);
-        return findMany(SQL_GET_ALL_REVIEWS_LIMIT, params);
+        return findMany(SQL_GET_ALL_REVIEWS_LIMIT, count);
     }
 
     @Override
@@ -113,15 +111,12 @@ public class ReviewStorage extends BaseStorage<Review> implements ReviewReposito
 
     @Override
     public void deleteLike(Long id, Long userId) {
-        Map<String, Object> params = Map.of(
-                "review_id", id,
-                "user_id", userId);
         delete(SQL_DELETE_LIKE, id, userId);
     }
 
     @Override
     public Review updateReview(Review review) {
-        jdbc.update(SQL_UPDATE_REVIEW, review.getContent(), review.getIsPositive(), review.getUserId(),
+        update(SQL_UPDATE_REVIEW, review.getContent(), review.getIsPositive(), review.getUserId(),
                 review.getFilmId(), review.getReviewId());
         return getById(review.getReviewId()).get();
     }

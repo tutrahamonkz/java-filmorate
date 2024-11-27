@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS reviews (
 );
 
 CREATE TABLE IF NOT EXISTS reviews_likes (
-    review_id INTEGER NOT NULL REFERENCES reviews (review_id),
+    review_id INTEGER NOT NULL REFERENCES reviews (review_id) ON DELETE CASCADE,
     user_id INTEGER NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
     is_useful BOOL NOT NULL,
     PRIMARY KEY (review_id, user_id)
