@@ -137,6 +137,7 @@ public class FilmService {
 
     public List<FilmDto> search(String query, List<String> by) {
         return filmStorage.search(query, by).stream()
+                .map(this::addDirectorsToFilm)
                 .map(FilmMapper::toFilmDto)
                 .map(this::addGenresToFilmDto)
                 .toList();
