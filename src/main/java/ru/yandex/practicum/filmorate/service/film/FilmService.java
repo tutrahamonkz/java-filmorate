@@ -142,6 +142,13 @@ public class FilmService {
         return filmDto; // Возвращаем фильм с установленными жанрами
     }
 
+    public List<FilmDto> search(String query, List<String> by) {
+        return filmStorage.search(query, by).stream()
+                .map(FilmMapper::toFilmDto)
+                .map(this::addGenresToFilmDto)
+                .toList();
+    }
+
     // Метод для добавления жанров в таблицу с жанрами фильма
     private void addGenresToGenresFilm(Long filmId, List<Genre> genresList) {
         if (genresList != null) {

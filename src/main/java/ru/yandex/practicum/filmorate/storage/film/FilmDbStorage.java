@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.storage.BaseStorage;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j // Аннотация для логирования
@@ -52,6 +53,18 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
                     "GROUP BY f.film_id, f.film_name, f.description, f.release_date, f.duration, f.mpa, mp.mpa_name " +
                     ") AS film_likes " +
                     "ORDER BY like_count DESC";
+    private static final String SEARCH_FILM = """
+            SELECT
+                film.*,
+                m_type.mpa_name,
+                COUNT(DISTINCT f_like.user_id) as likes_count
+            FROM films AS film
+            LEFT JOIN mpa_type AS m_type ON film.mpa = m_type.mpa_id
+            LEFT JOIN likes AS f_like ON film.film_id = f_like.film_id
+            %s
+            GROUP BY film.film_id
+            ORDER BY likes_count DESC;
+            """;
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper, Film.class);
@@ -134,5 +147,19 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
     public List<Film> getSortedFilmsByLikes(Long id) {
         log.info("Запрос на составление списка фильмов по числу лайков для режиссера с id " + id);
         return findMany(FILM_SORTED_BY_LIKE_QUERY, id);
+    }
+
+    @Override
+    public List<Film> search(String queryStr, List<String> by) {
+        String filter = "";
+        if (by.contains("title")) {
+            filter = "WHERE LOWER(film.film_name) LIKE LOWER(?)";
+        } else {
+            // todo director filter
+            // todo exception
+        }
+
+        String queryList = String.format(SEARCH_FILM, filter);
+        return findMany(queryList, "%" + queryStr + "%");
     }
 }

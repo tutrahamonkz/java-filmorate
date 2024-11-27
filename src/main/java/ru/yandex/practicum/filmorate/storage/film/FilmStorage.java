@@ -31,4 +31,6 @@ public interface FilmStorage {
 
     // Метод для удаления фильма
     boolean deleteFilm(Long filmId);
+
+    List<Film> search(String query, List<String> by);
 }
