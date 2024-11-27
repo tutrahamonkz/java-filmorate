@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service.user;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.feed.FeedDto;
+import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.eventHanding.FeedEventSource;
@@ -16,6 +17,7 @@ import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.event.FeedDbStorage;
+import ru.yandex.practicum.filmorate.service.RecommendationService;
 import ru.yandex.practicum.filmorate.storage.friend.FriendDbStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -34,14 +36,17 @@ public class UserService {
     private final LikeDbStorage likeDbStorage;
     private final FeedDbStorage feedDbStorage;
     private final FeedEventSource feedEventSource;
+    private final RecommendationService recommendation;
 
     // Конструктор, принимающий UserStorage в качестве параметра
     public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendDbStorage friendDbStorage,
+                       LikeDbStorage likeDbStorage, RecommendationService recommendation) {
                        LikeDbStorage likeDbStorage, FeedDbStorage feedDbStorage,
                        FeedEventSource feedEventSource) {
         this.userStorage = userStorage;
         this.friendDbStorage = friendDbStorage;
         this.likeDbStorage = likeDbStorage;
+        this.recommendation = recommendation;
         this.feedDbStorage = feedDbStorage;
         this.feedEventSource = feedEventSource;
     }
@@ -197,13 +202,11 @@ public class UserService {
 
     // Метод для удаления пользователя
     public void deleteUser(Long userId) {
-        if (!friendDbStorage.findAllFriends(userId).isEmpty()) { // Есть ли друзья у пользователя
-            friendDbStorage.deleteFriendsByUserId(userId); // Удаляем записи о пользователе из друзей
-        }
-        if (!likeDbStorage.getLikesByUserId(userId).isEmpty()) { // Есть ли лайки у пользователя
-            likeDbStorage.deleteLikeByUserId(userId); // Удаляем записи о пользователе из лайков
-        }
         userStorage.deleteUser(userId); // Удаляем пользователя
     }
 
+    // Метод для получения рекомендаций по фильмам
+    public List<FilmDto> getRecommendFilms(Long userId) {
+        return recommendation.getRecommendFilms(userId);
+    }
 }

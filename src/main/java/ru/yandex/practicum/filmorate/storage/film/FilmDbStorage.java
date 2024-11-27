@@ -22,7 +22,7 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
     private static final String INSERT_QUERY = "INSERT INTO FILMS(film_name, description, release_date, duration, " +
             "mpa) VALUES (?, ?, ?, ?, ?)";
     private static final String UPDATE_QUERY = "UPDATE FILMS SET film_name = ?, description = ?, release_date = ?, " +
-            "duration = ? WHERE film_id = ?";
+            "duration = ?, mpa = ? WHERE film_id = ?"; //*mpa
     private static final String FIND_POPULAR_LIMIT_QUERY = "SELECT f.*, mp.MPA_NAME FROM FILMS f " +
             "LEFT JOIN LIKES l ON f.FILM_ID = l.FILM_ID " +
             "JOIN MPA_TYPE mp ON f.mpa = mp.MPA_ID " +
@@ -30,6 +30,28 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             "ORDER BY COUNT(l.USER_ID) DESC " +
             "LIMIT ?;";
     private static final String DELETE_QUERY = "DELETE FROM FILMS WHERE FILM_ID = ?";
+
+    private static final String FILM_SORTED_BY_YEAR_QUERY =
+            "SELECT f.film_id, f.film_name, f.description, f.release_date, f.duration, f.mpa, mp.mpa_name " +
+                    " FROM directors_films df " +
+                    "JOIN films f " +
+                    "ON df.film_id = f.film_id " +
+                    "JOIN MPA_TYPE mp ON f.mpa = mp.mpa_id " +
+                    "WHERE df.dir_id = ? " +
+                    "ORDER BY f.release_date ASC";
+
+    private static final String FILM_SORTED_BY_LIKE_QUERY =
+            "SELECT film_id, film_name, description, release_date, duration, mpa, mpa_name " +
+                    "FROM( " +
+                    "SELECT f.film_id, f.film_name, f.description, f.release_date, f.duration, f.mpa, mp.mpa_name, COUNT(l.user_id) AS like_count " +
+                    "FROM directors_films df " +
+                    "JOIN films f ON df.film_id = f.film_id " +
+                    "JOIN MPA_TYPE mp ON f.mpa = mp.mpa_id " +
+                    "LEFT JOIN likes l ON f.film_id=l.film_id " +
+                    "WHERE df.dir_id = ? " +
+                    "GROUP BY f.film_id, f.film_name, f.description, f.release_date, f.duration, f.mpa, mp.mpa_name " +
+                    ") AS film_likes " +
+                    "ORDER BY like_count DESC";
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper, Film.class);
@@ -67,7 +89,7 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
 
     // Обновление информации о фильме
     @Override
-    public Film updateFilm(Film film) {
+    public Film updateFilm(Film film) { //*mpa
         log.info("Обновление фильма с id: {}", film.getId()); // Логируем начало обновления
         update(
                 UPDATE_QUERY,
@@ -75,8 +97,9 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
                 film.getDescription(),
                 Timestamp.valueOf(film.getReleaseDate().atStartOfDay()),
                 film.getDuration(),
+                film.getMpa().getId(),
                 film.getId()
-                );
+        );
         log.info("Фильм с id: {} успешно обновлён.", film.getId()); // Логируем успешное обновление
         return film; // Возвращаем обновленный фильм
     }
@@ -101,5 +124,15 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
         } else {
             throw new InternalServerException("Не удалось удалить фильм с id: " + filmId);
         }
+    }
+
+    public List<Film> getSortedFilmsByYear(Long id) {
+        log.info("Запрос на составление списка фильмов по годам для режиссера с id " + id);
+        return findMany(FILM_SORTED_BY_YEAR_QUERY, id);
+    }
+
+    public List<Film> getSortedFilmsByLikes(Long id) {
+        log.info("Запрос на составление списка фильмов по числу лайков для режиссера с id " + id);
+        return findMany(FILM_SORTED_BY_LIKE_QUERY, id);
     }
 }

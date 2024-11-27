@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 
 import java.util.Collection;
+import java.util.List;
 
 @RestController // Указывает, что этот класс является REST-контроллером
 @RequestMapping("/films") // Устанавливает базовый путь для всех методов контроллера
@@ -68,5 +69,11 @@ public class FilmController {
     @DeleteMapping("/{id}")
     public void deleteFilm(@PathVariable Long id) {
         filmService.deleteFilm(id);
+    }
+
+    @GetMapping("/director/{id}")
+    public List<FilmDto> getSortedFilms(@PathVariable Long id,
+                                        @RequestParam String sortBy) {
+        return filmService.getSortedFilms(id, sortBy);
     }
 }

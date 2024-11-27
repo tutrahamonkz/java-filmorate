@@ -50,4 +50,4 @@ public class GenresFilmDbStorage extends BaseStorage<GenresFilm> {
         }
         return result;
     }
-}
+    }

@@ -20,6 +20,7 @@ public class LikeDbStorage extends BaseStorage<Like> {
     private static final String DELETE_QUERY = "DELETE FROM LIKES WHERE film_id = ? AND user_id = ?";
     private static final String DELETE_QUERY_BY_FILM_ID = "DELETE FROM LIKES WHERE film_id = ?";
     private static final String DELETE_QUERY_BY_USER_ID = "DELETE FROM LIKES WHERE user_id = ?";
+    private static final String FIND_ALL_QUERY = "SELECT * FROM LIKES";
 
     public LikeDbStorage(JdbcTemplate jdbc, RowMapper<Like> mapper) {
         super(jdbc, mapper, Like.class);
@@ -40,6 +41,14 @@ public class LikeDbStorage extends BaseStorage<Like> {
         // Логируем количество найденных лайков
         log.info("Найдено {} лайков для пользователя с ID: {}", likes.size(), id);
         return likes; // Возвращаем список лайков
+    }
+
+    // Метод для получения всех лайков
+    public List<Like> getAllLikes() {
+        log.info("Получения списка всех лайков");
+        List<Like> likes = findMany(FIND_ALL_QUERY); // Выполняем запрос к БД
+        log.info("Найдено {} лайков", likes.size());
+        return likes;
     }
 
     // Метод для добавления лайка к фильму
