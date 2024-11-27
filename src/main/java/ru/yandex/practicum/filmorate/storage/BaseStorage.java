@@ -17,7 +17,7 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor // Аннотация Lombok, автоматически генерирующая конструктор с обязательными полями
 public class BaseStorage<T> {
-    protected final JdbcTemplate jdbc; // JdbcTemplate для выполнения SQL-запросов
+    protected final JdbcTemplate jdbc;// JdbcTemplate для выполнения SQL-запросов
     protected final RowMapper<T> mapper; // Mapper для преобразования результатов запроса в объекты типа T
     private final Class<T> entityType; // Класс сущности, используемый для создания объектов типа T
 
