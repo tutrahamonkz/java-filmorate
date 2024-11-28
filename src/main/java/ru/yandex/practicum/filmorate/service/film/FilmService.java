@@ -93,6 +93,7 @@ public class FilmService {
 
     // Метод для удаления фильма по id
     public void deleteFilm(Long filmId) {
+        likeDbStorage.deleteLikeByFilmId(filmId);
         filmStorage.deleteFilm(filmId); // Удаляем фильм
     }
 
@@ -137,6 +138,10 @@ public class FilmService {
 
     public List<FilmDto> search(String query, List<String> by) {
         return listFilmToDto(filmStorage.search(query, by));
+    }
+
+    public List<FilmDto> commonFilms(Long userId, Long friendId) {
+        return listFilmToDto(filmStorage.commonFilms(userId, friendId));
     }
 
     // Метод для добавления жанров в таблицу с жанрами фильма
