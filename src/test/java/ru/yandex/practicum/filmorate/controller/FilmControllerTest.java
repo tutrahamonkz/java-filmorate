@@ -279,10 +279,6 @@ class FilmControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    void shouldFindFilmsBySearch() throws Exception {
-        createFilm();
-    }
-
     void createUser() throws Exception {
         User user = User.builder()
                 .login("test")

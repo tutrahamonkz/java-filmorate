@@ -56,10 +56,9 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
                     "ORDER BY like_count DESC";
     private static final String SEARCH_FILM = """
             SELECT
-                film.*,
+                film.film_id, film.film_name, film.description, film.release_date, film.duration, film.mpa,
                 m_type.mpa_name,
-                dir.dir_id,
-                dir.dir_name,
+                dir.dir_id, dir.dir_name,
                 COUNT(DISTINCT f_like.user_id) as likes_count
             FROM films AS film
             LEFT JOIN mpa_type AS m_type ON film.mpa = m_type.mpa_id
