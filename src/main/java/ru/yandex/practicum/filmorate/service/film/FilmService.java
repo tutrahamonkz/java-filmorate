@@ -164,6 +164,10 @@ public class FilmService {
         return filmDto; // Возвращаем фильм с установленными жанрами
     }
 
+    public List<FilmDto> search(String query, List<String> by) {
+        return listFilmToDto(filmStorage.search(query, by));
+    }
+
     // Метод для добавления жанров в таблицу с жанрами фильма
     private void addGenresToGenresFilm(Long filmId, List<Genre> genresList) {
         if (genresList != null) {
