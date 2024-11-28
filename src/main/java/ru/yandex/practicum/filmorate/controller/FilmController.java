@@ -1,7 +1,15 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -50,12 +58,13 @@ public class FilmController {
         return filmService.deleteLike(id, userId);
     }
 
-    // Обрабатывает GET-запросы по пути "/films/popular" для получения популярных фильмов по количеству лайков
     @GetMapping("/popular")
     public Collection<FilmDto> getMostPopularByNumberOfLikes(
-            @RequestParam(required = false, defaultValue = DEFAULT_COUNT_POPULAR_MOVIES_DISPLAYED) Long count) {
-        // Возвращает список популярных фильмов в зависимости от заданного количества
-        return filmService.getMostPopularByNumberOfLikes(count);
+            @RequestParam(required = false, defaultValue = DEFAULT_COUNT_POPULAR_MOVIES_DISPLAYED) Long count,
+            @RequestParam(required = false) Long genreId,
+            @RequestParam(required = false) Integer year) {
+        // Возвращает список популярных фильмов в зависимости от заданного количества, жанра и года
+        return filmService.getMostPopularByNumberOfLikes(count, genreId, year);
     }
 
     // Обрабатывает GET-запросы по пути "/films/{id}" для получения фильма с жанром по его ID

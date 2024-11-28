@@ -25,6 +25,8 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
     private static final String FIND_POPULAR_LIMIT_QUERY = "SELECT f.*, mp.MPA_NAME FROM FILMS f " +
             "LEFT JOIN LIKES l ON f.FILM_ID = l.FILM_ID " +
             "JOIN MPA_TYPE mp ON f.mpa = mp.MPA_ID " +
+            "WHERE (? IS NULL OR EXISTS (SELECT 1 FROM genres_film gf WHERE gf.film_id = f.film_id AND gf.genre_id = ?)) " +
+            "AND (? IS NULL OR EXTRACT(YEAR FROM f.release_date) = ?) " +
             "GROUP BY f.FILM_ID " +
             "ORDER BY COUNT(l.USER_ID) DESC " +
             "LIMIT ?;";
@@ -74,16 +76,15 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
                 Timestamp.valueOf(film.getReleaseDate().atStartOfDay()),
                 film.getDuration(),
                 film.getId()
-                );
+        );
         log.info("Фильм с id: {} успешно обновлён.", film.getId()); // Логируем успешное обновление
         return film; // Возвращаем обновленный фильм
     }
 
-    // Получение самых популярных фильмов по количеству лайков с ограничением на количество
+    //Вывод самых популярных фильмов по жанру и годам.
     @Override
-    public List<Film> getMostPopularByNumberOfLikes(Long count) {
-        // Логируем запрос на получение популярных фильмов
-        log.info("Запрос на получение {} самых популярных фильмов.", count);
-        return findMany(FIND_POPULAR_LIMIT_QUERY, count);
+    public List<Film> getMostPopularByNumberOfLikes(Long count, Long genreId, Integer year) {
+        log.info("Запрос на получение {} самых популярных фильмов по жанру и году.", count);
+        return findMany(FIND_POPULAR_LIMIT_QUERY, genreId, genreId, year, year, count);
     }
 }

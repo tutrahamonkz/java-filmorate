@@ -46,6 +46,7 @@ public class FilmService {
                 .toList(); // Возвращаем список всех фильмов
     }
 
+
     // Метод для создания нового фильма
     public FilmDto createFilm(Film film) {
         Film newFilm = filmStorage.createFilm(film); // Создаем новый фильм в хранилище
@@ -82,10 +83,9 @@ public class FilmService {
         return FilmMapper.toFilmDto(film); // Возвращаем DTO-объект фильма после удаления лайка
     }
 
-    // Метод для получения самых популярных фильмов по количеству лайков
-    public List<FilmDto> getMostPopularByNumberOfLikes(Long count) {
-        // Возвращаем список самых популярных фильмов по количеству лайков
-        return filmStorage.getMostPopularByNumberOfLikes(count).stream()
+    public List<FilmDto> getMostPopularByNumberOfLikes(Long count, Long genreId, Integer year) {
+        // Возвращаем список самых популярных фильмов по количеству лайков с учетом жанра и года
+        return filmStorage.getMostPopularByNumberOfLikes(count, genreId, year).stream()
                 .map(FilmMapper::toFilmDto)
                 .map(this::addGenresToFilmDto)
                 .toList();

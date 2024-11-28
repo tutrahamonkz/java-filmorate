@@ -20,6 +20,6 @@ public interface FilmStorage {
     // Метод для обновления существующего фильма
     Film updateFilm(Film film);
 
-    // Метод для получения самых популярных фильмов по количеству лайков
-    List<Film> getMostPopularByNumberOfLikes(Long count);
+    //Вывод самых популярных фильмов по жанру и годам.
+    List<Film> getMostPopularByNumberOfLikes(Long count, Long genreId, Integer year);
 }

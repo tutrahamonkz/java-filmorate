@@ -60,15 +60,16 @@ public class InMemoryFilmStorage implements FilmStorage {
         return film; // Возвращаем обновленный фильм
     }
 
-    @Override // Метод для получения самых популярных фильмов по количеству лайков
-    public List<Film> getMostPopularByNumberOfLikes(Long count) {
-        // Логируем запрос на получение популярных фильмов
-        log.info("Пользователь получил список популярных фильмов");
+    @Override
+    public List<Film> getMostPopularByNumberOfLikes(Long count, Long genreId, Integer year) {
+        // Сортируем фильмы по количеству лайков
         return films.values().stream()
-                // Сортируем фильмы по количеству лайков (по убыванию)
-                .sorted(((film1, film2) -> Integer.compare(film2.getLikes().size(), film1.getLikes().size())))
-                .limit(count) // Ограничиваем количество возвращаемых фильмов до заданного значения
-                .toList(); // Собираем результат в список и возвращаем его
+                .filter(film -> (genreId == null || film.getGenres().stream()
+                        .anyMatch(genre -> genre.getId().equals(genreId)))
+                        && (year == null || film.getReleaseDate().getYear() == year))
+                .sorted((film1, film2) -> Integer.compare(film2.getLikes().size(), film1.getLikes().size()))
+                .limit(count) // Ограничение по количеству
+                .toList(); // Сбор результата в список
     }
 
     // Приватный метод для генерации следующего идентификатора фильма
