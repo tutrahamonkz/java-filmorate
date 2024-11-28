@@ -5,16 +5,20 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
+import ru.yandex.practicum.filmorate.eventHanding.FeedEventSource;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.GenresFilm;
 import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDBStorage;
 import ru.yandex.practicum.filmorate.storage.director.DirectorFilmDBStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -24,6 +28,8 @@ import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +47,7 @@ public class FilmService {
     private final DirectorFilmDBStorage directorFilmDBStorage;
     private final MpaDbStorage mpaDbStorage;
     private final GenreDbStorage genreDbStorage;
+    private final FeedEventSource feedEventSource;
 
     // Конструктор, принимающий FilmStorage, UserStorage и другие хранилища в качестве параметров
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
@@ -49,7 +56,8 @@ public class FilmService {
                        DirectorDBStorage directorDBStorage,
                        DirectorFilmDBStorage directorFilmDBStorage,
                        MpaDbStorage mpaDbStorage,
-                       GenreDbStorage genreDbStorage) {
+                       GenreDbStorage genreDbStorage,
+                       FeedEventSource feedEventSource) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.likeDbStorage = likeDbStorage;
@@ -58,6 +66,7 @@ public class FilmService {
         this.directorFilmDBStorage = directorFilmDBStorage;
         this.mpaDbStorage = mpaDbStorage;
         this.genreDbStorage = genreDbStorage;
+        this.feedEventSource = feedEventSource;
     }
 
     public List<FilmDto> getFilms() {
@@ -103,6 +112,16 @@ public class FilmService {
         Like like = likeDbStorage.addLikeToFilm(filmId, userId); // Добавляем лайк к фильму
         FilmDto response = FilmMapper.toFilmDto(film); // Преобразуем фильм в DTO-объект для ответа
         response.setLikes(Set.of(like.getUserId())); // Устанавливаем набор лайков в ответе
+
+        feedEventSource.notifyFeedListeners(
+                Feed.builder()
+                        .userId(userId)
+                        .timestamp(Timestamp.from(Instant.now()))
+                        .entityId(filmId)
+                        .eventType(EventType.LIKE) //проверить - по тестам нужен REVIEW
+                        .operation(Operation.ADD)
+                        .build());
+
         return response; // Возвращаем ответ с информацией о фильме и лайках
     }
 
@@ -111,6 +130,16 @@ public class FilmService {
         validateUserExists(userId);
         Film film = getFilmById(filmId);
         likeDbStorage.deleteLike(filmId, userId); // Удаляем лайк от пользователя к фильму
+
+        feedEventSource.notifyFeedListeners(
+                Feed.builder()
+                        .userId(userId)
+                        .timestamp(Timestamp.from(Instant.now()))
+                        .entityId(filmId)
+                        .eventType(EventType.LIKE) //проверить - по тестам нужен REVIEW
+                        .operation(Operation.REMOVE) //проверить - по тестам нужен UPDATE
+                        .build());
+
         return FilmMapper.toFilmDto(film); // Возвращаем DTO-объект фильма после удаления лайка
     }
 

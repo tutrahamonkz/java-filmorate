@@ -38,19 +38,12 @@ public class FriendDbStorage extends BaseStorage<Friendship> {
                 .accept(accept)
                 .build();
         // Выполняем SQL-запрос на добавление друга
-        /*int id = jdbc.update(
+        int id = jdbc.update(
                 INSERT_FRIEND,
                 userId,
                 friendId,
                 accept
-        );*/
-        //новый код
-        Long friendshipId = insert(INSERT_FRIEND,
-                userId,
-                friendId,
-                accept);
-        friendship.setId(friendshipId);
-        //новый код
+        );
         log.info("Друг успешно добавлен: {}", friendship); // Логируем успешное добавление
         return friendship; // Возвращаем объект дружбы
     }

@@ -94,13 +94,13 @@ public class UserService {
         Friendship friendship = friendDbStorage.addFriend(userId, friendId, accept);
 
         feedEventSource.notifyFeedListeners(
-                 Feed.builder()
-                .userId(userId)
-                .timestamp(Timestamp.from(Instant.now()))
-                .entityId(friendship.getId())
-                .eventType(EventType.FRIEND)
-                 .operation(Operation.ADD)
-                 .build());
+                Feed.builder()
+                        .userId(userId)
+                        .timestamp(Timestamp.from(Instant.now()))
+                        .entityId(friendId)
+                        .eventType(EventType.FRIEND)
+                        .operation(Operation.ADD)
+                        .build());
 
 
         // Обновляем список друзей в ответе, добавляя нового друга.
@@ -127,8 +127,19 @@ public class UserService {
         // Проверяем, добавил ли друг (friendId) пользователя (userId) в друзья.
         // Если да, устанавливаем статус дружбы (accept = false).
         checkAndUpdateFriendshipStatus(userId, friendId, friendList, false);
+
         // Удаляем дружбу из базы данных и проверяем результат операции.
         if (friendDbStorage.delete(userId, friendId)) {
+
+            feedEventSource.notifyFeedListeners(
+                    Feed.builder()
+                            .userId(userId)
+                            .timestamp(Timestamp.from(Instant.now()))
+                            .entityId(friendId)
+                            .eventType(EventType.FRIEND)
+                            .operation(Operation.REMOVE)
+                            .build());
+
             return response;
         }
         // Если удаление не удалось, выбрасываем исключение InternalServerException.
@@ -149,7 +160,7 @@ public class UserService {
         return listFriendshipToListUserDto(friendDbStorage.findMutualFriends(userId, friendId));
     }
 
-    private User findUserById(Long id) {
+    public User findUserById(Long id) {
         return userStorage.getUserById(id)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id: " + id + " не найден"));
     }
