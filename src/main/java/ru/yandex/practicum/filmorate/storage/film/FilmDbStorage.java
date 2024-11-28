@@ -4,11 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.BaseStorage;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,6 +54,21 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
                     "GROUP BY f.film_id, f.film_name, f.description, f.release_date, f.duration, f.mpa, mp.mpa_name " +
                     ") AS film_likes " +
                     "ORDER BY like_count DESC";
+    private static final String SEARCH_FILM = """
+            SELECT
+                film.film_id, film.film_name, film.description, film.release_date, film.duration, film.mpa,
+                m_type.mpa_name,
+                dir.dir_id, dir.dir_name,
+                COUNT(DISTINCT f_like.user_id) as likes_count
+            FROM films AS film
+            LEFT JOIN mpa_type AS m_type ON film.mpa = m_type.mpa_id
+            LEFT JOIN likes AS f_like ON film.film_id = f_like.film_id
+            LEFT JOIN directors_films AS d_film ON film.film_id = d_film.film_id
+            LEFT JOIN directors AS dir ON d_film.dir_id = dir.dir_id
+            %s
+            GROUP BY film.film_id
+            ORDER BY likes_count DESC;
+            """;
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper, Film.class);
@@ -89,7 +106,7 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
 
     // Обновление информации о фильме
     @Override
-    public Film updateFilm(Film film) { //*mpa
+    public Film updateFilm(Film film) {
         log.info("Обновление фильма с id: {}", film.getId()); // Логируем начало обновления
         update(
                 UPDATE_QUERY,
@@ -99,7 +116,7 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
                 film.getDuration(),
                 film.getMpa().getId(),
                 film.getId()
-        );
+                );
         log.info("Фильм с id: {} успешно обновлён.", film.getId()); // Логируем успешное обновление
         return film; // Возвращаем обновленный фильм
     }
@@ -134,5 +151,35 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
     public List<Film> getSortedFilmsByLikes(Long id) {
         log.info("Запрос на составление списка фильмов по числу лайков для режиссера с id " + id);
         return findMany(FILM_SORTED_BY_LIKE_QUERY, id);
+    }
+
+    @Override
+    public List<Film> search(String queryStr, List<String> by) {
+        List<String> filterList = new ArrayList<>();
+        List<String> params = new ArrayList<>();
+        /*
+         Поиск разрешен только по названию фильма и имени режиссера
+         */
+        if (by.contains("title")) {
+            filterList.add("LOWER(film.film_name) LIKE LOWER(?)");
+            params.add("%" + queryStr + "%");
+        }
+        if (by.contains("director")) {
+            filterList.add("LOWER(dir.dir_name) LIKE LOWER(?)");
+            params.add("%" + queryStr + "%");
+        }
+
+        if (filterList.isEmpty()) {
+            /*
+             Если параметр by не содержит нужного ключа - выход с ошибкой
+             */
+            throw new BadRequestException("Ошибка запроса");
+        }
+
+        /*
+        Подставляем фильтр в строку запроса
+         */
+        String queryList = String.format(SEARCH_FILM, "WHERE " + String.join(" OR ", filterList));
+        return findMany(queryList, params.toArray());
     }
 }
