@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.Operation;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 @Component
 public class FeedRowMapper implements RowMapper<Feed> {
     @Override

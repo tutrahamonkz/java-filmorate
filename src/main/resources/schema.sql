@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS likes (
   like_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   film_id INTEGER REFERENCES films(film_id) ON DELETE CASCADE,
   user_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE
-);
+  );
 
 CREATE TABLE IF NOT EXISTS genre_type (
   genre_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -77,8 +77,6 @@ event_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 user_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
 timestamp TIMESTAMP NOT NULL,
 entity_id INTEGER NOT NULL,
-event_type VARCHAR(20),
-operation VARCHAR(20)
---event_type VARCHAR(20) CHECK (event_type IN ('LIKE', 'REVIEW', 'FRIEND')),
---operation VARCHAR(20) CHECK (operation IN ('REMOVE', 'ADD', 'UPDATE')),
+event_type VARCHAR(20) CHECK (event_type IN ('LIKE', 'REVIEW', 'FRIEND')),
+operation VARCHAR(20) CHECK (operation IN ('REMOVE', 'ADD', 'UPDATE'))
 );

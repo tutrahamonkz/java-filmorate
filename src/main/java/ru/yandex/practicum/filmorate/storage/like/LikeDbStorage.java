@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.storage.BaseStorage;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j // Аннотация для включения логирования в класс
 @Repository // Аннотация, указывающая, что класс является репозиторием Spring
@@ -21,6 +22,7 @@ public class LikeDbStorage extends BaseStorage<Like> {
     private static final String DELETE_QUERY_BY_FILM_ID = "DELETE FROM LIKES WHERE film_id = ?";
     private static final String DELETE_QUERY_BY_USER_ID = "DELETE FROM LIKES WHERE user_id = ?";
     private static final String FIND_ALL_QUERY = "SELECT * FROM LIKES";
+    private static final String SEARCH_POST_LIKE = "SELECT * FROM LIKES WHERE film_id =? AND user_id = ?";
 
     public LikeDbStorage(JdbcTemplate jdbc, RowMapper<Like> mapper) {
         super(jdbc, mapper, Like.class);
@@ -100,5 +102,10 @@ public class LikeDbStorage extends BaseStorage<Like> {
         } else {
             throw new InternalServerException("Не удалось удалить лайки для пользователя с ID: ");
         }
+    }
+    //метод для проверки наличия лайка в таблице
+
+    public Optional<Like> searchLikeByUserIdFilmId(Long filmId, Long userId) {
+        return findOne(SEARCH_POST_LIKE, filmId, userId);
     }
 }

@@ -40,7 +40,7 @@ public class BaseStorage<T> {
     // Метод для вставки нового объекта и возвращения его сгенерированного идентификатора
     protected long insert(String query, Object... params) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder(); // Хранитель для сгенерированного ключа
-        jdbc.update(connection -> {
+         jdbc.update(connection -> {
             PreparedStatement ps = connection
                     .prepareStatement(query, Statement.RETURN_GENERATED_KEYS); // Подготавливаем запрос для вставки
             for (int idx = 0; idx < params.length; idx++) {

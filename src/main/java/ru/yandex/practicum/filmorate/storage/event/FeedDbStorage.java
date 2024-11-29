@@ -32,7 +32,7 @@ public class FeedDbStorage extends BaseStorage<Feed> {
                 feed.getOperation().toString()
         );
         feed.setEventId(id);
-        log.info("Создана запись тип {}, операция {} в ленту события для пользователя с id: {}", feed.getEventType(),
+        log.info("Создана запись тип {}, операция {} в ленту события с id: {}", feed.getEventType(),
                 feed.getOperation(), id);
     }
 
