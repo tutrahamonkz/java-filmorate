@@ -117,10 +117,7 @@ public class FilmService {
 
     public List<FilmDto> getMostPopularByNumberOfLikes(Long count, Long genreId, Integer year) {
         // Возвращаем список самых популярных фильмов по количеству лайков с учетом жанра и года
-        return filmStorage.getMostPopularByNumberOfLikes(count, genreId, year).stream()
-                .map(FilmMapper::toFilmDto)
-                .map(this::addGenresToFilmDto)
-                .toList();
+        return listFilmToDto(filmStorage.getMostPopularByNumberOfLikes(count, genreId, year));
     }
 
     // Метод для получения фильма с его жанрами по идентификатору
