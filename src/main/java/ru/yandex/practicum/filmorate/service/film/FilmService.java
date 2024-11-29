@@ -93,7 +93,6 @@ public class FilmService {
 
     // Метод для удаления фильма по id
     public void deleteFilm(Long filmId) {
-        likeDbStorage.deleteLikeByFilmId(filmId);
         filmStorage.deleteFilm(filmId); // Удаляем фильм
     }
 
