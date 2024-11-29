@@ -139,6 +139,10 @@ public class FilmService {
         return listFilmToDto(filmStorage.search(query, by));
     }
 
+    public List<FilmDto> commonFilms(Long userId, Long friendId) {
+        return listFilmToDto(filmStorage.commonFilms(userId, friendId));
+    }
+
     // Метод для добавления жанров в таблицу с жанрами фильма
     private void addGenresToGenresFilm(Long filmId, List<Genre> genresList) {
         if (genresList != null) {
