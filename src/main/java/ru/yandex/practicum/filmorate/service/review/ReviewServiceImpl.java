@@ -71,16 +71,19 @@ public class ReviewServiceImpl implements ReviewService {
 
         Review review = getReviewById(id);
 
-        feedEventSource.notifyFeedListeners(
-                Feed.builder()
-                        .userId(review.getUserId())
-                        .timestamp(Timestamp.from(Instant.now()))
-                        .entityId(review.getFilmId())
-                        .eventType(EventType.REVIEW)
-                        .operation(Operation.REMOVE)
-                        .build());
+        boolean isDeleted = reviewDbRepository.deleteReview(id);
 
-        return reviewDbRepository.deleteReview(id);
+        if (isDeleted) {
+            feedEventSource.notifyFeedListeners(
+                    Feed.builder()
+                            .userId(review.getUserId())
+                            .timestamp(Timestamp.from(Instant.now()))
+                            .entityId(review.getFilmId())
+                            .eventType(EventType.REVIEW)
+                            .operation(Operation.REMOVE)
+                            .build());
+        }
+        return isDeleted;
     }
 
     @Override
@@ -111,7 +114,7 @@ public class ReviewServiceImpl implements ReviewService {
         checkReviewExist(id);
         checkUserExist(userId);
 
-     reviewDbRepository.setUseful(id, userId, false);
+        reviewDbRepository.setUseful(id, userId, false);
     }
 
     @Override
