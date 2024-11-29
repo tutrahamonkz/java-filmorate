@@ -112,16 +112,16 @@ public class FilmService {
         Like like = likeDbStorage.addLikeToFilm(filmId, userId); // Добавляем лайк к фильму
         FilmDto response = FilmMapper.toFilmDto(film); // Преобразуем фильм в DTO-объект для ответа
         response.setLikes(Set.of(like.getUserId()));
-         // Устанавливаем набор лайков в ответе
+        // Устанавливаем набор лайков в ответе
 
-            feedEventSource.notifyFeedListeners(
-                    Feed.builder()
-                            .userId(userId)
-                            .timestamp(Timestamp.from(Instant.now()))
-                            .entityId(filmId)
-                            .eventType(EventType.LIKE) //проверить - по тестам нужен REVIEW
-                            .operation(Operation.ADD)
-                            .build());
+        feedEventSource.notifyFeedListeners(//создаем событие
+                Feed.builder()
+                        .userId(userId)
+                        .timestamp(Timestamp.from(Instant.now()))
+                        .entityId(filmId)
+                        .eventType(EventType.LIKE)
+                        .operation(Operation.ADD)
+                        .build());
 
         return response; // Возвращаем ответ с информацией о фильме и лайках
     }
@@ -194,7 +194,7 @@ public class FilmService {
     }
 
     // Метод для добавления жанров к фильму
-    private FilmDto addGenresToFilmDto(FilmDto filmDto) {
+    public FilmDto addGenresToFilmDto(FilmDto filmDto) {
         List<Genre> filmGenresList = genresFilmDbStorage.getGenresByFilmId(filmDto.getId()).stream()
                 .map(GenresFilm::getGenre)
                 .toList();

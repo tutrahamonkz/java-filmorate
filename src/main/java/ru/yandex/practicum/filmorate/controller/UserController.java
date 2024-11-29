@@ -21,10 +21,6 @@ public class UserController {
     private final UserService userService;
     private final FeedService feedService;
 
-    /*public UserController(UserService userService, FeedService feedService) {
-        this.userService = userService;
-    }*/
-
     @GetMapping // Обрабатывает GET-запросы по пути "/users"
     public List<UserDto> findAll() {
         return userService.getUsers(); // Возвращает всех пользователей

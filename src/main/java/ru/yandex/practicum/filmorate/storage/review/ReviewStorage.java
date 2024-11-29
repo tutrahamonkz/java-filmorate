@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.review;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -11,6 +12,7 @@ import ru.yandex.practicum.filmorate.storage.mapper.ReviewRowMapper;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Repository
 public class ReviewStorage extends BaseStorage<Review> implements ReviewRepository {
 
@@ -65,9 +67,7 @@ public class ReviewStorage extends BaseStorage<Review> implements ReviewReposito
             "DELETE FROM reviews_likes WHERE (review_id = ? AND user_id = ?)";
 
     private static final String SQL_UPDATE_REVIEW = "UPDATE reviews SET content = ?, " +
-            "is_positive = ?, " +
-            "user_id = ?, " +
-            "film_id = ? " +
+            "is_positive = ? " +
             "WHERE review_id = ?";
 
     @Override
@@ -75,6 +75,7 @@ public class ReviewStorage extends BaseStorage<Review> implements ReviewReposito
         Long id = insert(SQL_INSERT_REVIEW, review.getContent(), review.getIsPositive(), review.getFilmId(),
                 review.getUserId());
         review.setReviewId(id);
+        log.info("Добавление отзыва " + review);
         return review;
     }
 
@@ -114,10 +115,10 @@ public class ReviewStorage extends BaseStorage<Review> implements ReviewReposito
         delete(SQL_DELETE_LIKE, id, userId);
     }
 
+
     @Override
     public Review updateReview(Review review) {
-        update(SQL_UPDATE_REVIEW, review.getContent(), review.getIsPositive(), review.getUserId(),
-                review.getFilmId(), review.getReviewId());
+        update(SQL_UPDATE_REVIEW, review.getContent(), review.getIsPositive(), review.getReviewId());
         return getById(review.getReviewId()).get();
     }
 }

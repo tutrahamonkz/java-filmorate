@@ -37,9 +37,9 @@ public class ReviewServiceImpl implements ReviewService {
 
         feedEventSource.notifyFeedListeners(
                 Feed.builder()
-                        .userId(review.getUserId())
+                        .userId(addedReview.getUserId())
                         .timestamp(Timestamp.from(Instant.now()))
-                        .entityId(review.getFilmId())
+                        .entityId(addedReview.getFilmId())
                         .eventType(EventType.REVIEW)
                         .operation(Operation.ADD)
                         .build());
@@ -56,9 +56,9 @@ public class ReviewServiceImpl implements ReviewService {
 
         feedEventSource.notifyFeedListeners(
                 Feed.builder()
-                        .userId(review.getUserId())
+                        .userId(updatedReview.getUserId())
                         .timestamp(Timestamp.from(Instant.now()))
-                        .entityId(review.getFilmId())
+                        .entityId(updatedReview.getFilmId())
                         .eventType(EventType.REVIEW)
                         .operation(Operation.UPDATE)
                         .build());
@@ -70,6 +70,7 @@ public class ReviewServiceImpl implements ReviewService {
     public Boolean deleteReview(Long id) {
 
         Review review = getReviewById(id);
+
         feedEventSource.notifyFeedListeners(
                 Feed.builder()
                         .userId(review.getUserId())
@@ -102,15 +103,6 @@ public class ReviewServiceImpl implements ReviewService {
         checkReviewExist(id);
         checkUserExist(userId);
 
-        /*feedEventSource.notifyFeedListeners(
-                Feed.builder()
-                        .userId(userId)
-                        .timestamp(Timestamp.from(Instant.now()))
-                        .entityId(id)
-                        .eventType(EventType.LIKE)
-                        .operation(Operation.ADD)
-                        .build());*/
-
         reviewDbRepository.setUseful(id, userId, true);
     }
 
@@ -119,16 +111,7 @@ public class ReviewServiceImpl implements ReviewService {
         checkReviewExist(id);
         checkUserExist(userId);
 
-        /*feedEventSource.notifyFeedListeners(
-                Feed.builder()
-                        .userId(userId)
-                        .timestamp(Timestamp.from(Instant.now()))
-                        .entityId(id)
-                        .eventType(EventType.LIKE)
-                        .operation(Operation.UPDATE)
-                        .build());*/
-
-        reviewDbRepository.setUseful(id, userId, false);
+     reviewDbRepository.setUseful(id, userId, false);
     }
 
     @Override
@@ -136,16 +119,6 @@ public class ReviewServiceImpl implements ReviewService {
         checkReviewExist(id);
         checkUserExist(userId);
 
-        feedEventSource.notifyFeedListeners(
-                Feed.builder()
-                        .userId(userId)
-                        .timestamp(Timestamp.from(Instant.now()))
-                        .entityId(id)
-                        .eventType(EventType.LIKE)
-                        .operation(Operation.REMOVE)
-                        .build());
-
-        reviewDbRepository.deleteLike(id, userId);
     }
 
     private void checkReviewExist(Long reviewId) {

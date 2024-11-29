@@ -1,10 +1,11 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Like;
+import ru.yandex.practicum.filmorate.service.film.FilmService;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 
@@ -12,10 +13,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class RecommendationService {
 
     private final LikeDbStorage likeDbStorage;
     private final FilmStorage filmStorage;
+    private final FilmService filmService;
 
     private final Map<Long, Map<Long, Double>> diff = new HashMap<>();
     private final Map<Long, Map<Long, Integer>> freq = new HashMap<>();
@@ -23,11 +26,6 @@ public class RecommendationService {
     private final Map<Long, Integer> uFreq = new HashMap<>();
     private Map<Long, HashMap<Long, Integer>> data;
 
-    @Autowired
-    public RecommendationService(LikeDbStorage likeDbStorage, FilmStorage filmStorage) {
-        this.likeDbStorage = likeDbStorage;
-        this.filmStorage = filmStorage;
-    }
 
     public List<FilmDto> getRecommendFilms(Long userId) {
         clearData();
@@ -133,6 +131,7 @@ public class RecommendationService {
                 .map(filmStorage::getFilmById)
                 .flatMap(Optional::stream)
                 .map(FilmMapper::toFilmDto)
+                .map(filmService::addGenresToFilmDto)
                 .toList();
     }
 
