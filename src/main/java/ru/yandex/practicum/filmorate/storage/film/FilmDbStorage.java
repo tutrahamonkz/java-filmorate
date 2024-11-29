@@ -69,6 +69,22 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             GROUP BY film.film_id
             ORDER BY likes_count DESC;
             """;
+    private static final String COMMON_USERS_FILMS = """
+            SELECT
+                film.film_id, film.film_name, film.description, film.release_date, film.duration, film.mpa,
+                m_type.mpa_name,
+                dir.dir_id, dir.dir_name,
+                COUNT(DISTINCT first_likes.user_id) as likes_count
+            FROM films AS film
+            LEFT JOIN mpa_type AS m_type ON film.mpa = m_type.mpa_id
+            LEFT JOIN directors_films AS d_film ON film.film_id = d_film.film_id
+            LEFT JOIN directors AS dir ON d_film.dir_id = dir.dir_id
+            JOIN likes AS first_likes ON film.film_id = first_likes.film_id
+            JOIN likes AS second_likes ON film.film_id = second_likes.film_id
+            WHERE first_likes.user_id = ? AND second_likes.user_id = ?
+            GROUP BY film.film_id
+            ORDER BY likes_count DESC;
+            """;
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper, Film.class);
@@ -181,5 +197,10 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
          */
         String queryList = String.format(SEARCH_FILM, "WHERE " + String.join(" OR ", filterList));
         return findMany(queryList, params.toArray());
+    }
+
+    @Override
+    public List<Film> commonFilms(Long userId, Long friendId) {
+        return findMany(COMMON_USERS_FILMS, List.of(userId, friendId).toArray());
     }
 }
