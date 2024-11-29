@@ -5,16 +5,19 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
+import ru.yandex.practicum.filmorate.eventHanding.FeedEventSource;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.GenresFilm;
 import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDBStorage;
 import ru.yandex.practicum.filmorate.storage.director.DirectorFilmDBStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -41,6 +44,7 @@ public class FilmService {
     private final DirectorFilmDBStorage directorFilmDBStorage;
     private final MpaDbStorage mpaDbStorage;
     private final GenreDbStorage genreDbStorage;
+    private final FeedEventSource feedEventSource;
 
     // Конструктор, принимающий FilmStorage, UserStorage и другие хранилища в качестве параметров
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
@@ -49,7 +53,8 @@ public class FilmService {
                        DirectorDBStorage directorDBStorage,
                        DirectorFilmDBStorage directorFilmDBStorage,
                        MpaDbStorage mpaDbStorage,
-                       GenreDbStorage genreDbStorage) {
+                       GenreDbStorage genreDbStorage,
+                       FeedEventSource feedEventSource) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.likeDbStorage = likeDbStorage;
@@ -58,6 +63,7 @@ public class FilmService {
         this.directorFilmDBStorage = directorFilmDBStorage;
         this.mpaDbStorage = mpaDbStorage;
         this.genreDbStorage = genreDbStorage;
+        this.feedEventSource = feedEventSource;
     }
 
     public List<FilmDto> getFilms() {
@@ -103,7 +109,15 @@ public class FilmService {
         Film film = getFilmById(filmId);
         Like like = likeDbStorage.addLikeToFilm(filmId, userId); // Добавляем лайк к фильму
         FilmDto response = FilmMapper.toFilmDto(film); // Преобразуем фильм в DTO-объект для ответа
-        response.setLikes(Set.of(like.getUserId())); // Устанавливаем набор лайков в ответе
+        response.setLikes(Set.of(like.getUserId()));
+        // Устанавливаем набор лайков в ответе
+
+        feedEventSource.notifyFeedListeners(
+                userId,
+                filmId,
+                EventType.LIKE,
+                Operation.ADD);
+
         return response; // Возвращаем ответ с информацией о фильме и лайках
     }
 
@@ -112,6 +126,13 @@ public class FilmService {
         validateUserExists(userId);
         Film film = getFilmById(filmId);
         likeDbStorage.deleteLike(filmId, userId); // Удаляем лайк от пользователя к фильму
+
+        feedEventSource.notifyFeedListeners(
+                userId,
+                filmId,
+                EventType.LIKE,
+                Operation.REMOVE);
+
         return FilmMapper.toFilmDto(film); // Возвращаем DTO-объект фильма после удаления лайка
     }
 
@@ -155,13 +176,13 @@ public class FilmService {
     }
 
     // Метод для получения фильма по его идентификатору
-    private Film getFilmById(Long filmId) {
+    public Film getFilmById(Long filmId) {
         return filmStorage.getFilmById(filmId) // Возвращаем фильм
                 .orElseThrow(() -> new NotFoundException("Фильм с id: " + filmId + " не найден"));
     }
 
     // Метод для добавления жанров к фильму
-    private FilmDto addGenresToFilmDto(FilmDto filmDto) {
+    public FilmDto addGenresToFilmDto(FilmDto filmDto) {
         List<Genre> filmGenresList = genresFilmDbStorage.getGenresByFilmId(filmDto.getId()).stream()
                 .map(GenresFilm::getGenre)
                 .toList();

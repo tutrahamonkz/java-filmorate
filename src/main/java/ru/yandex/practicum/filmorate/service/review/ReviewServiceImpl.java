@@ -4,11 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
+import ru.yandex.practicum.filmorate.eventHanding.FeedEventSource;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
+
 
 import java.util.List;
 
@@ -21,12 +25,20 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewStorage reviewDbRepository;
     private final FilmDbStorage filmDbRepository;
     private final UserDbStorage userDbRepository;
+    private final FeedEventSource feedEventSource;
 
     @Override
     public Review addReview(Review review) {
         checkFilmExist(review.getFilmId());
         checkUserExist(review.getUserId());
         Review addedReview = reviewDbRepository.addReview(review);
+
+        feedEventSource.notifyFeedListeners(
+                addedReview.getUserId(),
+                addedReview.getReviewId(),
+                EventType.REVIEW,
+                Operation.ADD);
+
         return addedReview;
     }
 
@@ -36,12 +48,31 @@ public class ReviewServiceImpl implements ReviewService {
         checkUserExist(review.getUserId());
         checkReviewExist(review.getReviewId());
         Review updatedReview = reviewDbRepository.updateReview(review);
+
+        feedEventSource.notifyFeedListeners(
+                updatedReview.getUserId(),
+                updatedReview.getReviewId(),
+                EventType.REVIEW,
+                Operation.UPDATE);
+
         return updatedReview;
     }
 
     @Override
     public Boolean deleteReview(Long id) {
-        return reviewDbRepository.deleteReview(id);
+
+        Review review = getReviewById(id);
+
+        boolean isDeleted = reviewDbRepository.deleteReview(id);
+
+        if (isDeleted) {
+            feedEventSource.notifyFeedListeners(
+                    review.getUserId(),
+                    review.getReviewId(),
+                    EventType.REVIEW,
+                    Operation.REMOVE);
+        }
+        return isDeleted;
     }
 
     @Override
@@ -63,6 +94,7 @@ public class ReviewServiceImpl implements ReviewService {
     public void setLike(Long id, Long userId) {
         checkReviewExist(id);
         checkUserExist(userId);
+
         reviewDbRepository.setUseful(id, userId, true);
     }
 
@@ -70,6 +102,7 @@ public class ReviewServiceImpl implements ReviewService {
     public void setDislike(Long id, Long userId) {
         checkReviewExist(id);
         checkUserExist(userId);
+
         reviewDbRepository.setUseful(id, userId, false);
     }
 

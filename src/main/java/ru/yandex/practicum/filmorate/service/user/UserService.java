@@ -5,14 +5,16 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
+import ru.yandex.practicum.filmorate.eventHanding.FeedEventSource;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Friendship;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.RecommendationService;
 import ru.yandex.practicum.filmorate.storage.friend.FriendDbStorage;
-import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
@@ -24,16 +26,17 @@ public class UserService {
     private final UserStorage userStorage; // Хранение ссылки на объект UserStorage для работы с данными о пользователях
     // Хранение ссылки на объект FriendDbStorage для работы с дружескими отношениями
     private final FriendDbStorage friendDbStorage;
-    private final LikeDbStorage likeDbStorage;
+    private final FeedEventSource feedEventSource;
     private final RecommendationService recommendation;
 
     // Конструктор, принимающий UserStorage в качестве параметра
     public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendDbStorage friendDbStorage,
-                       LikeDbStorage likeDbStorage, RecommendationService recommendation) {
+                       RecommendationService recommendation,
+                       FeedEventSource feedEventSource) {
         this.userStorage = userStorage;
         this.friendDbStorage = friendDbStorage;
-        this.likeDbStorage = likeDbStorage;
         this.recommendation = recommendation;
+        this.feedEventSource = feedEventSource;
     }
 
     // Метод для получения всех пользователей из хранилища
@@ -51,6 +54,7 @@ public class UserService {
 
     // Метод для создания нового пользователя
     public UserDto userCreate(User user) {
+
         // Создаем пользователя и преобразуем в UserDto
         return UserMapper.mapToUserDto(userStorage.userCreate(user));
     }
@@ -81,11 +85,18 @@ public class UserService {
         boolean accept = checkAndUpdateFriendshipStatus(userId, friendId, friendList, true);
         // Добавляем новую дружбу в базу данных и получаем объект Friendship.
         Friendship friendship = friendDbStorage.addFriend(userId, friendId, accept);
+
+        feedEventSource.notifyFeedListeners(
+                userId,
+                friendId,
+                EventType.FRIEND,
+                Operation.ADD);
+
         // Обновляем список друзей в ответе, добавляя нового друга.
         userList.add(friendship);
         response.setFriends(userList.stream()
-                        .map(Friendship::getFriendId)
-                        .toList()
+                .map(Friendship::getFriendId)
+                .toList()
         );
         return response; // Возвращаем обновленный объект UserDto с новым списком друзей.
     }
@@ -105,8 +116,16 @@ public class UserService {
         // Проверяем, добавил ли друг (friendId) пользователя (userId) в друзья.
         // Если да, устанавливаем статус дружбы (accept = false).
         checkAndUpdateFriendshipStatus(userId, friendId, friendList, false);
+
         // Удаляем дружбу из базы данных и проверяем результат операции.
         if (friendDbStorage.delete(userId, friendId)) {
+
+            feedEventSource.notifyFeedListeners(
+                    userId,
+                    friendId,
+                    EventType.FRIEND,
+                    Operation.REMOVE);
+
             return response;
         }
         // Если удаление не удалось, выбрасываем исключение InternalServerException.
@@ -127,7 +146,7 @@ public class UserService {
         return listFriendshipToListUserDto(friendDbStorage.findMutualFriends(userId, friendId));
     }
 
-    private User findUserById(Long id) {
+    public User findUserById(Long id) {
         return userStorage.getUserById(id)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id: " + id + " не найден"));
     }
