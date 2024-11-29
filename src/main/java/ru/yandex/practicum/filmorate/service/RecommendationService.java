@@ -24,7 +24,6 @@ public class RecommendationService {
     private final Map<Long, Integer> uFreq = new HashMap<>();
     private Map<Long, HashMap<Long, Integer>> data;
 
-
     public List<FilmDto> getRecommendFilms(Long userId) {
         clearData();
         data = loadData();
