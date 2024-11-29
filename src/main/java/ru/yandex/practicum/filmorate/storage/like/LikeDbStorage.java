@@ -18,6 +18,9 @@ public class LikeDbStorage extends BaseStorage<Like> {
     private static final String FIND_BY_FILM_ID_QUERY = "SELECT * FROM LIKES WHERE film_id = ?";
     private static final String FIND_BY_USER_ID_QUERY = "SELECT * FROM LIKES WHERE user_id = ?";
     private static final String DELETE_QUERY = "DELETE FROM LIKES WHERE film_id = ? AND user_id = ?";
+    private static final String DELETE_QUERY_BY_FILM_ID = "DELETE FROM LIKES WHERE film_id = ?";
+    private static final String DELETE_QUERY_BY_USER_ID = "DELETE FROM LIKES WHERE user_id = ?";
+    private static final String FIND_ALL_QUERY = "SELECT * FROM LIKES";
 
     public LikeDbStorage(JdbcTemplate jdbc, RowMapper<Like> mapper) {
         super(jdbc, mapper, Like.class);
@@ -38,6 +41,14 @@ public class LikeDbStorage extends BaseStorage<Like> {
         // Логируем количество найденных лайков
         log.info("Найдено {} лайков для пользователя с ID: {}", likes.size(), id);
         return likes; // Возвращаем список лайков
+    }
+
+    // Метод для получения всех лайков
+    public List<Like> getAllLikes() {
+        log.info("Получения списка всех лайков");
+        List<Like> likes = findMany(FIND_ALL_QUERY); // Выполняем запрос к БД
+        log.info("Найдено {} лайков", likes.size());
+        return likes;
     }
 
     // Метод для добавления лайка к фильму
@@ -66,6 +77,28 @@ public class LikeDbStorage extends BaseStorage<Like> {
         } else {
             throw new InternalServerException("Не удалось удалить лайк для фильма с ID: " + filmId +
                     " от пользователя с ID: " + userId);
+        }
+    }
+
+    public void deleteLikeByFilmId(Long filmId) {
+        // Логируем удаление лайка
+        log.info("Удаление лайков для фильма с ID: {}", filmId);
+        if (delete(DELETE_QUERY_BY_FILM_ID, filmId)) { // Выполняем удаление из БД
+            // Логируем успешное удаление
+            log.info("Лайки успешно удалены для фильма с ID: {}", filmId);
+        } else {
+            throw new InternalServerException("Не удалось удалить лайки для фильма с ID: ");
+        }
+    }
+
+    public void deleteLikeByUserId(Long userId) {
+        // Логируем удаление лайка
+        log.info("Удаление лайков для пользователя с ID: {}", userId);
+        if (delete(DELETE_QUERY_BY_USER_ID, userId)) { // Выполняем удаление из БД
+            // Логируем успешное удаление
+            log.info("Лайки успешно удалены для пользователя с ID: {}", userId);
+        } else {
+            throw new InternalServerException("Не удалось удалить лайки для пользователя с ID: ");
         }
     }
 }

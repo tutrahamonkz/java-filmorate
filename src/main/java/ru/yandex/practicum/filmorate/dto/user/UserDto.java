@@ -13,4 +13,5 @@ public class UserDto {
     private String name;
     private LocalDate birthday;
     private List<Long> friends;
+    private List<Long> recommendFilm;
 }

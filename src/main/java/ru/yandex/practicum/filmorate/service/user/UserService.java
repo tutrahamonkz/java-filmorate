@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service.user;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
@@ -9,7 +10,9 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.RecommendationService;
 import ru.yandex.practicum.filmorate.storage.friend.FriendDbStorage;
+import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
@@ -21,11 +24,16 @@ public class UserService {
     private final UserStorage userStorage; // Хранение ссылки на объект UserStorage для работы с данными о пользователях
     // Хранение ссылки на объект FriendDbStorage для работы с дружескими отношениями
     private final FriendDbStorage friendDbStorage;
+    private final LikeDbStorage likeDbStorage;
+    private final RecommendationService recommendation;
 
     // Конструктор, принимающий UserStorage в качестве параметра
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendDbStorage friendDbStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendDbStorage friendDbStorage,
+                       LikeDbStorage likeDbStorage, RecommendationService recommendation) {
         this.userStorage = userStorage;
         this.friendDbStorage = friendDbStorage;
+        this.likeDbStorage = likeDbStorage;
+        this.recommendation = recommendation;
     }
 
     // Метод для получения всех пользователей из хранилища
@@ -63,7 +71,7 @@ public class UserService {
         findUserById(friendId); // Проверяем, существует ли пользователь с friendId.
         // Получаем список друзей для пользователя userId и friendId.
         List<Friendship> userList = friendDbStorage.findAllFriends(userId);
-        List<Friendship> friendList = friendDbStorage.findAllFriends(userId);
+        List<Friendship> friendList = friendDbStorage.findAllFriends(friendId);
         // Проверяем, есть ли уже дружба между пользователями.
         // Если да, выбрасываем исключение InternalServerException.
         if (checkFriendshipExists(userList, userId, friendId)) {
@@ -89,7 +97,7 @@ public class UserService {
         findUserById(friendId); // Проверяем, существует ли пользователь с friendId.
         // Получаем список друзей для пользователя userId и friendId.
         List<Friendship> userList = friendDbStorage.findAllFriends(userId);
-        List<Friendship> friendList = friendDbStorage.findAllFriends(userId);
+        List<Friendship> friendList = friendDbStorage.findAllFriends(friendId);
         // Проверяем, есть ли уже дружба между пользователями.
         if (!checkFriendshipExists(userList, userId, friendId)) {
             return response;
@@ -163,5 +171,15 @@ public class UserService {
                 .flatMap(Optional::stream)
                 .map(UserMapper::mapToUserDto)
                 .toList();
+    }
+
+    // Метод для удаления пользователя
+    public void deleteUser(Long userId) {
+        userStorage.deleteUser(userId); // Удаляем пользователя
+    }
+
+    // Метод для получения рекомендаций по фильмам
+    public List<FilmDto> getRecommendFilms(Long userId) {
+        return recommendation.getRecommendFilms(userId);
     }
 }

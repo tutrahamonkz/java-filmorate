@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -13,9 +14,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@Slf4j
 @RequiredArgsConstructor // Аннотация Lombok, автоматически генерирующая конструктор с обязательными полями
 public class BaseStorage<T> {
-    protected final JdbcTemplate jdbc; // JdbcTemplate для выполнения SQL-запросов
+    protected final JdbcTemplate jdbc;// JdbcTemplate для выполнения SQL-запросов
     protected final RowMapper<T> mapper; // Mapper для преобразования результатов запроса в объекты типа T
     private final Class<T> entityType; // Класс сущности, используемый для создания объектов типа T
 
@@ -65,4 +67,14 @@ public class BaseStorage<T> {
         int rowsDeleted = jdbc.update(query, params); // Выполняем обновление и получаем количество удаленных строк
         return rowsDeleted > 0; // Возвращаем true, если строки были удалены
     }
+
+    protected void insertMany(String query) {
+        int count = jdbc.update(query);
+        if (count > 0) {
+            log.info("Данные запроса " + query + " успешно сохранены");
+        } else {
+            log.info("Данные запроса " + query + " не сохранены (дублируются или другая причина)");
+        }
+    }
+
 }

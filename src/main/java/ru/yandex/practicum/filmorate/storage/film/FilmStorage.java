@@ -22,4 +22,18 @@ public interface FilmStorage {
 
     //Вывод самых популярных фильмов по жанру и годам.
     List<Film> getMostPopularByNumberOfLikes(Long count, Long genreId, Integer year);
+
+    //Метод для получения списка фильмов конкретного режиссера, отсортированного по годам
+    List<Film> getSortedFilmsByYear(Long id);
+
+    //Метод для получения списка фильмов конкретного режиссера, отсортированного лайкам
+    List<Film> getSortedFilmsByLikes(Long id);
+
+    // Метод для удаления фильма
+    boolean deleteFilm(Long filmId);
+
+    List<Film> search(String query, List<String> by);
+
+    List<Film> commonFilms(Long userId, Long friendId);
+//>>>>>>> origin/develop
 }
