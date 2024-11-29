@@ -39,7 +39,7 @@ public class ReviewServiceImpl implements ReviewService {
                 Feed.builder()
                         .userId(addedReview.getUserId())
                         .timestamp(Timestamp.from(Instant.now()))
-                        .entityId(addedReview.getFilmId())
+                        .entityId(addedReview.getReviewId())
                         .eventType(EventType.REVIEW)
                         .operation(Operation.ADD)
                         .build());
@@ -58,7 +58,7 @@ public class ReviewServiceImpl implements ReviewService {
                 Feed.builder()
                         .userId(updatedReview.getUserId())
                         .timestamp(Timestamp.from(Instant.now()))
-                        .entityId(updatedReview.getFilmId())
+                        .entityId(updatedReview.getReviewId())
                         .eventType(EventType.REVIEW)
                         .operation(Operation.UPDATE)
                         .build());
@@ -78,7 +78,7 @@ public class ReviewServiceImpl implements ReviewService {
                     Feed.builder()
                             .userId(review.getUserId())
                             .timestamp(Timestamp.from(Instant.now()))
-                            .entityId(review.getFilmId())
+                            .entityId(review.getReviewId())
                             .eventType(EventType.REVIEW)
                             .operation(Operation.REMOVE)
                             .build());

@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.storage.BaseStorage;
 
@@ -24,7 +23,7 @@ public class FeedDbStorage extends BaseStorage<Feed> {
             "SELECT event_id, user_id, timestamp, entity_id, event_type, operation FROM events WHERE user_id = ?";
 
     public void createFeed(Feed feed) {
-                Long id = insert(
+        Long id = insert(
                 INSERT_QUERY,
                 feed.getUserId(),
                 feed.getTimestamp(),
