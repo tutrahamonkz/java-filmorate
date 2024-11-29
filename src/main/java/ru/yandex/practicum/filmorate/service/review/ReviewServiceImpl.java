@@ -121,7 +121,7 @@ public class ReviewServiceImpl implements ReviewService {
     public void deleteLike(Long id, Long userId) {
         checkReviewExist(id);
         checkUserExist(userId);
-
+        reviewDbRepository.deleteLike(id, userId);
     }
 
     private void checkReviewExist(Long reviewId) {
