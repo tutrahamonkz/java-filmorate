@@ -20,8 +20,8 @@ public interface FilmStorage {
     // Метод для обновления существующего фильма
     Film updateFilm(Film film);
 
-    // Метод для получения самых популярных фильмов по количеству лайков
-    List<Film> getMostPopularByNumberOfLikes(Long count);
+    //Вывод самых популярных фильмов по жанру и годам.
+    List<Film> getMostPopularByNumberOfLikes(Long count, Long genreId, Integer year);
 
     //Метод для получения списка фильмов конкретного режиссера, отсортированного по годам
     List<Film> getSortedFilmsByYear(Long id);
@@ -35,4 +35,5 @@ public interface FilmStorage {
     List<Film> search(String query, List<String> by);
 
     List<Film> commonFilms(Long userId, Long friendId);
+//>>>>>>> origin/develop
 }
