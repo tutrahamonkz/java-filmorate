@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.EventType;
-import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.GenresFilm;
@@ -114,14 +113,12 @@ public class FilmService {
         response.setLikes(Set.of(like.getUserId()));
         // Устанавливаем набор лайков в ответе
 
-        feedEventSource.notifyFeedListeners(//создаем событие
-                Feed.builder()
-                        .userId(userId)
-                        .timestamp(Timestamp.from(Instant.now()))
-                        .entityId(filmId)
-                        .eventType(EventType.LIKE)
-                        .operation(Operation.ADD)
-                        .build());
+        feedEventSource.notifyFeedListeners(
+                userId,
+                Timestamp.from(Instant.now()),
+                filmId,
+                EventType.LIKE,
+                Operation.ADD);
 
         return response; // Возвращаем ответ с информацией о фильме и лайках
     }
@@ -133,13 +130,11 @@ public class FilmService {
         likeDbStorage.deleteLike(filmId, userId); // Удаляем лайк от пользователя к фильму
 
         feedEventSource.notifyFeedListeners(
-                Feed.builder()
-                        .userId(userId)
-                        .timestamp(Timestamp.from(Instant.now()))
-                        .entityId(filmId)
-                        .eventType(EventType.LIKE) //проверить - по тестам нужен REVIEW
-                        .operation(Operation.REMOVE) //проверить - по тестам нужен UPDATE
-                        .build());
+                userId,
+                Timestamp.from(Instant.now()),
+                filmId,
+                EventType.LIKE,
+                Operation.REMOVE);
 
         return FilmMapper.toFilmDto(film); // Возвращаем DTO-объект фильма после удаления лайка
     }
@@ -188,7 +183,7 @@ public class FilmService {
     }
 
     // Метод для получения фильма по его идентификатору
-    private Film getFilmById(Long filmId) {
+    public Film getFilmById(Long filmId) {
         return filmStorage.getFilmById(filmId) // Возвращаем фильм
                 .orElseThrow(() -> new NotFoundException("Фильм с id: " + filmId + " не найден"));
     }

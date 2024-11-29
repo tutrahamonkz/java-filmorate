@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.EventType;
-import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.User;
@@ -90,14 +89,11 @@ public class UserService {
         Friendship friendship = friendDbStorage.addFriend(userId, friendId, accept);
 
         feedEventSource.notifyFeedListeners(
-                Feed.builder()
-                        .userId(userId)
-                        .timestamp(Timestamp.from(Instant.now()))
-                        .entityId(friendId)
-                        .eventType(EventType.FRIEND)
-                        .operation(Operation.ADD)
-                        .build());
-
+                userId,
+                Timestamp.from(Instant.now()),
+                friendId,
+                EventType.FRIEND,
+                Operation.ADD);
 
         // Обновляем список друзей в ответе, добавляя нового друга.
         userList.add(friendship);
@@ -128,13 +124,11 @@ public class UserService {
         if (friendDbStorage.delete(userId, friendId)) {
 
             feedEventSource.notifyFeedListeners(
-                    Feed.builder()
-                            .userId(userId)
-                            .timestamp(Timestamp.from(Instant.now()))
-                            .entityId(friendId)
-                            .eventType(EventType.FRIEND)
-                            .operation(Operation.REMOVE)
-                            .build());
+                    userId,
+                    Timestamp.from(Instant.now()),
+                    friendId,
+                    EventType.FRIEND,
+                    Operation.REMOVE);
 
             return response;
         }

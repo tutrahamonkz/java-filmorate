@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 
 import java.util.*;
@@ -17,7 +16,6 @@ import java.util.stream.Collectors;
 public class RecommendationService {
 
     private final LikeDbStorage likeDbStorage;
-    private final FilmStorage filmStorage;
     private final FilmService filmService;
 
     private final Map<Long, Map<Long, Double>> diff = new HashMap<>();
@@ -128,8 +126,7 @@ public class RecommendationService {
         return results.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .map(Map.Entry::getKey)
-                .map(filmStorage::getFilmById)
-                .flatMap(Optional::stream)
+                .map(filmService::getFilmById)
                 .map(FilmMapper::toFilmDto)
                 .map(filmService::addGenresToFilmDto)
                 .toList();

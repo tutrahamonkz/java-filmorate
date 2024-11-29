@@ -37,7 +37,7 @@ public class User {
 
     // Если имя не указано, возвращается логин
     public String getName() {
-        if (name == null || name.isBlank()) {
+        if (name.isBlank()) {
             return login;
         }
         return name;

@@ -2,8 +2,11 @@ package ru.yandex.practicum.filmorate.eventHanding;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Feed;
+import ru.yandex.practicum.filmorate.model.Operation;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,8 +19,20 @@ public class FeedEventSource { //класс, управляющий слушат
         this.listeners.add(feedNotificationService); //зарегистрировали слушателя
     }
 
-        public void notifyFeedListeners(Feed feed) { //метод оповещения слушателей, отправляем событие на обработку
-        for (FeedListeners listener: listeners) { //цикл на случай, если слушателей(обработчиков) несколько
+    public void notifyFeedListeners(Long userId, //метод оповещения слушателей, отправляем событие на обработку
+                                    Timestamp timestamp,
+                                    Long entityId,
+                                    EventType eventType,
+                                    Operation operation) {
+        Feed feed = Feed.builder()
+                .userId(userId)
+                .timestamp(timestamp)
+                .entityId(entityId)
+                .eventType(eventType)
+                .operation(operation)
+                .build();
+
+        for (FeedListeners listener : listeners) { //цикл на случай, если слушателей(обработчиков) несколько
             listener.feedAdded(feed);
         }
     }

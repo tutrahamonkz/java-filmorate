@@ -7,7 +7,6 @@ import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.eventHanding.FeedEventSource;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.EventType;
-import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
@@ -36,13 +35,11 @@ public class ReviewServiceImpl implements ReviewService {
         Review addedReview = reviewDbRepository.addReview(review);
 
         feedEventSource.notifyFeedListeners(
-                Feed.builder()
-                        .userId(addedReview.getUserId())
-                        .timestamp(Timestamp.from(Instant.now()))
-                        .entityId(addedReview.getReviewId())
-                        .eventType(EventType.REVIEW)
-                        .operation(Operation.ADD)
-                        .build());
+                addedReview.getUserId(),
+                Timestamp.from(Instant.now()),
+                addedReview.getReviewId(),
+                EventType.REVIEW,
+                Operation.ADD);
 
         return addedReview;
     }
@@ -55,13 +52,11 @@ public class ReviewServiceImpl implements ReviewService {
         Review updatedReview = reviewDbRepository.updateReview(review);
 
         feedEventSource.notifyFeedListeners(
-                Feed.builder()
-                        .userId(updatedReview.getUserId())
-                        .timestamp(Timestamp.from(Instant.now()))
-                        .entityId(updatedReview.getReviewId())
-                        .eventType(EventType.REVIEW)
-                        .operation(Operation.UPDATE)
-                        .build());
+                updatedReview.getUserId(),
+                Timestamp.from(Instant.now()),
+                updatedReview.getReviewId(),
+                EventType.REVIEW,
+                Operation.UPDATE);
 
         return updatedReview;
     }
@@ -75,13 +70,11 @@ public class ReviewServiceImpl implements ReviewService {
 
         if (isDeleted) {
             feedEventSource.notifyFeedListeners(
-                    Feed.builder()
-                            .userId(review.getUserId())
-                            .timestamp(Timestamp.from(Instant.now()))
-                            .entityId(review.getReviewId())
-                            .eventType(EventType.REVIEW)
-                            .operation(Operation.REMOVE)
-                            .build());
+                    review.getUserId(),
+                    Timestamp.from(Instant.now()),
+                    review.getReviewId(),
+                    EventType.REVIEW,
+                    Operation.REMOVE);
         }
         return isDeleted;
     }
