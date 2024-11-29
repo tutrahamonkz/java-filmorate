@@ -27,8 +27,6 @@ import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -116,7 +114,6 @@ public class FilmService {
 
         feedEventSource.notifyFeedListeners(
                 userId,
-                Timestamp.from(Instant.now()),
                 filmId,
                 EventType.LIKE,
                 Operation.ADD);
@@ -132,7 +129,6 @@ public class FilmService {
 
         feedEventSource.notifyFeedListeners(
                 userId,
-                Timestamp.from(Instant.now()),
                 filmId,
                 EventType.LIKE,
                 Operation.REMOVE);

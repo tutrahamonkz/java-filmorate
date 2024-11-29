@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Operation;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,13 +21,12 @@ public class FeedEventSource { //класс, управляющий слушат
     }
 
     public void notifyFeedListeners(Long userId, //метод оповещения слушателей, отправляем событие на обработку
-                                    Timestamp timestamp,
                                     Long entityId,
                                     EventType eventType,
                                     Operation operation) {
         Feed feed = Feed.builder()
                 .userId(userId)
-                .timestamp(timestamp)
+                .timestamp(Timestamp.from(Instant.now()))
                 .entityId(entityId)
                 .eventType(eventType)
                 .operation(operation)

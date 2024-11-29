@@ -17,8 +17,6 @@ import ru.yandex.practicum.filmorate.service.RecommendationService;
 import ru.yandex.practicum.filmorate.storage.friend.FriendDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -90,7 +88,6 @@ public class UserService {
 
         feedEventSource.notifyFeedListeners(
                 userId,
-                Timestamp.from(Instant.now()),
                 friendId,
                 EventType.FRIEND,
                 Operation.ADD);
@@ -125,7 +122,6 @@ public class UserService {
 
             feedEventSource.notifyFeedListeners(
                     userId,
-                    Timestamp.from(Instant.now()),
                     friendId,
                     EventType.FRIEND,
                     Operation.REMOVE);

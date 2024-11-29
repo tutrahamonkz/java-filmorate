@@ -13,8 +13,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
-import java.sql.Timestamp;
-import java.time.Instant;
+
 import java.util.List;
 
 @Slf4j
@@ -36,7 +35,6 @@ public class ReviewServiceImpl implements ReviewService {
 
         feedEventSource.notifyFeedListeners(
                 addedReview.getUserId(),
-                Timestamp.from(Instant.now()),
                 addedReview.getReviewId(),
                 EventType.REVIEW,
                 Operation.ADD);
@@ -53,7 +51,6 @@ public class ReviewServiceImpl implements ReviewService {
 
         feedEventSource.notifyFeedListeners(
                 updatedReview.getUserId(),
-                Timestamp.from(Instant.now()),
                 updatedReview.getReviewId(),
                 EventType.REVIEW,
                 Operation.UPDATE);
@@ -71,7 +68,6 @@ public class ReviewServiceImpl implements ReviewService {
         if (isDeleted) {
             feedEventSource.notifyFeedListeners(
                     review.getUserId(),
-                    Timestamp.from(Instant.now()),
                     review.getReviewId(),
                     EventType.REVIEW,
                     Operation.REMOVE);
