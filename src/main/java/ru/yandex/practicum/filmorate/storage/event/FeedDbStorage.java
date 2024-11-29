@@ -24,8 +24,7 @@ public class FeedDbStorage extends BaseStorage<Feed> {
             "SELECT event_id, user_id, timestamp, entity_id, event_type, operation FROM events WHERE user_id = ?";
 
     public void createFeed(Feed feed) {
-        fixFeedForTest(feed);
-        Long id = insert(
+                Long id = insert(
                 INSERT_QUERY,
                 feed.getUserId(),
                 feed.getTimestamp(),
@@ -43,11 +42,4 @@ public class FeedDbStorage extends BaseStorage<Feed> {
         return findMany(LIST_FEED_FOR_USER_ID_QUERY, id);
     }
 
-    private void fixFeedForTest(Feed feed) {
-        if (feed.getUserId() == 2 && feed.getEntityId() == 1 && feed.getEventType() == EventType.REVIEW) {
-            feed.setEntityId(2L);
-        } else if (feed.getUserId() == 1 && feed.getEntityId() == 2 && feed.getEventType() == EventType.REVIEW) {
-            feed.setEntityId(3L);
-        }
-    }
 }
