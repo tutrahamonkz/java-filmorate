@@ -93,6 +93,7 @@ public class FilmService {
 
     // Метод для удаления фильма по id
     public void deleteFilm(Long filmId) {
+        getFilmById(filmId); // Проверяем есть ли фильм с таким id
         filmStorage.deleteFilm(filmId); // Удаляем фильм
     }
 

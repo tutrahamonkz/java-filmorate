@@ -194,6 +194,7 @@ public class UserService {
 
     // Метод для удаления пользователя
     public void deleteUser(Long userId) {
+        findUserById(userId); // Проверяем есть ли пользователь с таким id
         userStorage.deleteUser(userId); // Удаляем пользователя
     }
 
