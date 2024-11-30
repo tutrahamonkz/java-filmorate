@@ -10,14 +10,7 @@ import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
-import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.model.EventType;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.GenresFilm;
-import ru.yandex.practicum.filmorate.model.Like;
-import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.Operation;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDBStorage;
 import ru.yandex.practicum.filmorate.storage.director.DirectorFilmDBStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -158,6 +151,12 @@ public class FilmService {
     }
 
     public List<FilmDto> commonFilms(Long userId, Long friendId) {
+        if (userStorage.getUserById(userId).isEmpty()) {
+            throw new NotFoundException("Не найден пользователь с id: " + userId);
+        }
+        if (userStorage.getUserById(friendId).isEmpty()) {
+            throw new NotFoundException("Не найден пользователь с id: " + userId);
+        }
         return listFilmToDto(filmStorage.commonFilms(userId, friendId));
     }
 

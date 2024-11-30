@@ -45,7 +45,7 @@ public class DirectorService {
         return DirectorMapper.toDirectorDto(directorDBStorage.getDirectorById(director.getId()).get()); //вытаскиваем из базы обновленного режиссера
     }
 
-    public Director checkDirectorById(long id) { //проверка наличия режиссера в базе
+    private Director checkDirectorById(long id) { //проверка наличия режиссера в базе
         Optional<Director> director = directorDBStorage.getDirectorById(id);
         if (director.isEmpty()) {
             log.error("Пользователь ввел неверный id");

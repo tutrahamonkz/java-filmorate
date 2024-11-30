@@ -199,6 +199,9 @@ public class UserService {
 
     // Метод для получения рекомендаций по фильмам
     public List<FilmDto> getRecommendFilms(Long userId) {
+        if (userStorage.getUserById(userId).isEmpty()) {
+            throw new NotFoundException("Не найден пользователь с id: " + userId);
+        }
         return recommendation.getRecommendFilms(userId);
     }
 }

@@ -190,7 +190,7 @@ public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
             /*
              Если параметр by не содержит нужного ключа - выход с ошибкой
              */
-            throw new BadRequestException("Ошибка запроса");
+            throw new BadRequestException("Ошибка запроса: допустимые значения параметра 'by' - 'title', 'director'. Полученные значения: " + by);
         }
 
         /*
