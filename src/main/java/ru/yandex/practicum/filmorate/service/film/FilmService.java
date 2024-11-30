@@ -155,7 +155,7 @@ public class FilmService {
             throw new NotFoundException("Не найден пользователь с id: " + userId);
         }
         if (userStorage.getUserById(friendId).isEmpty()) {
-            throw new NotFoundException("Не найден пользователь с id: " + userId);
+            throw new NotFoundException("Не найден пользователь с id: " + friendId);
         }
         return listFilmToDto(filmStorage.commonFilms(userId, friendId));
     }
