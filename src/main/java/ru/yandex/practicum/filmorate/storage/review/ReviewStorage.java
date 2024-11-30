@@ -72,15 +72,19 @@ public class ReviewStorage extends BaseStorage<Review> implements ReviewReposito
 
     @Override
     public Review addReview(Review review) {
+        log.info("Добавление отзыва от пользователя с id: {} к фильму с id: {}",
+                review.getUserId(), review.getFilmId());
         Long id = insert(SQL_INSERT_REVIEW, review.getContent(), review.getIsPositive(), review.getFilmId(),
                 review.getUserId());
         review.setReviewId(id);
-        log.info("Добавление отзыва " + review);
+        log.info("Успешно добавлен отзыв с id: {}, от пользователя с id: {} к фильму с id: {}",
+                review.getReviewId(), review.getUserId(), review.getFilmId());
         return review;
     }
 
     @Override
     public Optional<Review> getById(Long id) {
+        log.info("Запрос на получение отзыва с id: {}", id);
         Optional<Review> review;
         try {
             review = findOne(SQL_GET_REVIEW_BY_IDS, id);
@@ -92,33 +96,58 @@ public class ReviewStorage extends BaseStorage<Review> implements ReviewReposito
 
     @Override
     public List<Review> getAll(Integer count) {
+        log.info("Запрос на получение {} отзывов.", count);
         return findMany(SQL_GET_ALL_REVIEWS_LIMIT, count);
     }
 
     @Override
     public List<Review> getByFilmId(Long filmId, Integer count) {
+        log.info("Запрос на получение {} отзывов к фильму с id: {}.", count, filmId);
         return findMany(SQL_GET_REVIEW_BY_FILM_IDS_LIMIT, filmId, count);
     }
 
     @Override
     public Boolean deleteReview(Long id) {
-        return delete(SQL_DELETE_REVIEW_BY_ID, id);
+        log.info("Удаление отзыва с id: {}", id);
+        boolean isDelete = delete(SQL_DELETE_REVIEW_BY_ID, id);
+        if (isDelete) {
+            log.info("Успешно удален отзыв с id: {}", id);
+        }
+        return isDelete;
     }
 
     @Override
     public void setUseful(Long id, Long userId, Boolean isUseful) {
+        if (isUseful) {
+            log.info("Пользователь с id: {} хочет поставить лайк отзыву с id: {}", userId, id);
+        } else {
+            log.info("Пользователь с id: {} хочет поставить дизлайк отзыву с id: {}", userId, id);
+        }
         update(SQL_MERGE_REVIEW_LIKES, id, userId, isUseful);
+        if (isUseful) {
+            log.info("Пользователь с id: {} поставил лайк отзыву с id: {}", userId, id);
+        } else {
+            log.info("Пользователь с id: {} поставил дизлайк отзыву с id: {}", userId, id);
+        }
     }
 
     @Override
     public void deleteLike(Long id, Long userId) {
-        delete(SQL_DELETE_LIKE, id, userId);
+        log.info("Пользователь с id: {} хочет удалить лайк/дизлайк отзыву с id: {}", userId, id);
+        if (delete(SQL_DELETE_LIKE, id, userId)) {
+            log.info("Пользователь с id: {} удалил лайк/дизлайк отзыву с id: {}", userId, id);
+        }
     }
-
 
     @Override
     public Review updateReview(Review review) {
+        log.info("Изменение отзыва с id: {} от пользователя с id: {} к фильму с id: {}",
+                review.getReviewId(), review.getUserId(), review.getFilmId());
+
         update(SQL_UPDATE_REVIEW, review.getContent(), review.getIsPositive(), review.getReviewId());
+
+        log.info("Успешно изменен отзыв с id: {}, от пользователя с id: {} к фильму с id: {}",
+                review.getReviewId(), review.getUserId(), review.getFilmId());
         return getById(review.getReviewId()).get();
     }
 }
