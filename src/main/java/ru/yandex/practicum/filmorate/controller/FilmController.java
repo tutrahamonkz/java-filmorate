@@ -1,13 +1,22 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 
 import java.util.Collection;
+import java.util.List;
 
 @RestController // Указывает, что этот класс является REST-контроллером
 @RequestMapping("/films") // Устанавливает базовый путь для всех методов контроллера
@@ -50,17 +59,46 @@ public class FilmController {
         return filmService.deleteLike(id, userId);
     }
 
-    // Обрабатывает GET-запросы по пути "/films/popular" для получения популярных фильмов по количеству лайков
     @GetMapping("/popular")
     public Collection<FilmDto> getMostPopularByNumberOfLikes(
-            @RequestParam(required = false, defaultValue = DEFAULT_COUNT_POPULAR_MOVIES_DISPLAYED) Long count) {
-        // Возвращает список популярных фильмов в зависимости от заданного количества
-        return filmService.getMostPopularByNumberOfLikes(count);
+            @RequestParam(required = false, defaultValue = DEFAULT_COUNT_POPULAR_MOVIES_DISPLAYED) Long count,
+            @RequestParam(required = false) Long genreId,
+            @RequestParam(required = false) Integer year) {
+        // Возвращает список популярных фильмов в зависимости от заданного количества, жанра и года
+        return filmService.getMostPopularByNumberOfLikes(count, genreId, year);
     }
 
     // Обрабатывает GET-запросы по пути "/films/{id}" для получения фильма с жанром по его ID
     @GetMapping("/{id}")
     public FilmDto getWithGenre(@PathVariable Long id) {
         return filmService.getWithGenre(id);
+    }
+
+    // Обрабатывает DELETE-запросы для удаления фильма
+    @DeleteMapping("/{id}")
+    public void deleteFilm(@PathVariable Long id) {
+        filmService.deleteFilm(id);
+    }
+
+    @GetMapping("/director/{id}")
+    public List<FilmDto> getSortedFilms(@PathVariable Long id,
+                                        @RequestParam String sortBy) {
+        return filmService.getSortedFilms(id, sortBy);
+    }
+
+    @GetMapping("/search")
+    public List<FilmDto> searchFilm(
+            @RequestParam(name = "query") String query,
+            @RequestParam(name = "by") List<String> by
+    ) {
+        return filmService.search(query, by);
+    }
+
+    @GetMapping("/common")
+    public List<FilmDto> commonFilms(
+            @RequestParam(name = "userId") Long userId,
+            @RequestParam(name = "friendId") Long friendId
+    ) {
+        return filmService.commonFilms(userId, friendId);
     }
 }

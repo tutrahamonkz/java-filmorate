@@ -4,7 +4,11 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+
+import java.util.ArrayList;
 
 // Создает приватный конструктор, чтобы предотвратить создание экземпляров класса
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -27,6 +31,19 @@ public class FilmMapper {
         if (request.hasDuration()) {
             film.setDuration(request.getDuration());
         }
+        if (request.hasMpa()) {
+            film.setMpa(request.getMpa());
+        }
+        if (request.hasGenre()) {
+            film.setGenres(request.getGenres());
+        } else {
+            film.setGenres(new ArrayList<Genre>());
+        }
+        if (request.hasDirectors()) {
+            film.setDirectors(request.getDirectors());
+        } else {
+            film.setDirectors(new ArrayList<Director>());
+        }
         return film;
     }
 
@@ -40,6 +57,7 @@ public class FilmMapper {
                 .releaseDate(film.getReleaseDate())
                 .mpa(film.getMpa())
                 .genres(film.getGenres())
+                .directors(film.getDirectors())
                 .build();
     }
 }

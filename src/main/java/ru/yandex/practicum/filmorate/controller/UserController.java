@@ -1,23 +1,25 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.dto.film.FilmDto;
+import ru.yandex.practicum.filmorate.dto.feed.FeedDto;
 import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.feed.FeedService;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 
 import java.util.List;
 
 @RestController // Указывает, что этот класс является REST-контроллером
 @RequestMapping("/users") // Устанавливает базовый путь для всех методов контроллера
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    private final FeedService feedService;
 
     @GetMapping // Обрабатывает GET-запросы по пути "/users"
     public List<UserDto> findAll() {
@@ -26,7 +28,7 @@ public class UserController {
 
     @PostMapping // Обрабатывает POST-запросы по пути "/users"
     public UserDto create(@Valid @RequestBody User user) {
-            return userService.userCreate(user); // Создает нового пользователя и возвращает его
+        return userService.userCreate(user); // Создает нового пользователя и возвращает его
     }
 
     @PutMapping // Обрабатывает PUT-запросы по пути "/users"
@@ -66,5 +68,23 @@ public class UserController {
     public List<UserDto> listOfMutualFriends(@PathVariable Long id, @PathVariable Long otherId) {
         // Возвращает коллекцию общих друзей между двумя пользователями
         return userService.listOfMutualFriends(id, otherId);
+    }
+
+    // Обрабатывает DELETE-запросы для удаления пользователя
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+    }
+
+    // Обрабатывает Get-запросы для получения списка рекомендаций по фильмам.
+    @GetMapping("{id}/recommendations")
+    public List<FilmDto> recommendationsFilm(@PathVariable Long id) {
+        return userService.getRecommendFilms(id);
+    }
+
+    @GetMapping("/{id}/feed")
+    public List<FeedDto> getUserFeeds(@PathVariable Long id) {
+        // Возвращает ленту новостей указанного пользователя
+        return feedService.getUserFeed(id);
     }
 }
